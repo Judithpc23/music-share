@@ -1,12 +1,27 @@
 -- SoundShare Database Schema - Tables only
 
--- Users (simulated, no auth)
+-- Genres
+create table if not exists public.genres (
+  id text primary key,
+  name text not null unique,
+  description varchar(150) not null,
+  created_at timestamptz not null default now()
+);
+
+-- Users
 create table if not exists public.users (
   id text primary key,
   username text not null unique,
   email text not null unique,
   role text not null default 'user',
-  bio text
+  bio text,
+  first_name text not null default '',
+  last_name text not null default '',
+  privacity text not null default 'public' check (privacity in ('public', 'private')),
+  img text,
+  fav_genres text references public.genres(id),
+  fav_song text unique,
+  mood text not null default ''
 );
 
 -- Artists
@@ -21,7 +36,7 @@ create table if not exists public.songs (
   id text primary key,
   title text not null,
   artist_id text not null references public.artists(id),
-  genre text not null,
+  genre_id text not null references public.genres(id),
   provider text not null,
   cover_image_url text,
   created_at timestamptz not null default now(),
@@ -109,3 +124,25 @@ create table if not exists public.room_activities (
   timestamp timestamptz not null default now(),
   details text
 );
+
+-- User favorite genres (supports selecting multiple genres)
+create table if not exists public.user_favorite_genres (
+  user_id text not null references public.users(id) on delete cascade,
+  genre_id text not null references public.genres(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, genre_id)
+);
+
+-- Optional favorite song relationship
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'users_fav_song_fkey'
+  ) then
+    alter table public.users
+      add constraint users_fav_song_fkey
+      foreign key (fav_song) references public.songs(id);
+  end if;
+end $$;

@@ -2,7 +2,7 @@ import React from "react"
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { AppShell } from '@/components/app-shell'
+import { RootShell } from '@/components/root-shell'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <AppShell>{children}</AppShell>
+        <RootShell>{children}</RootShell>
         <Analytics />
       </body>
     </html>

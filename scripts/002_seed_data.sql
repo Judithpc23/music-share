@@ -1,10 +1,33 @@
 -- Seed data for SoundShare
 
+-- Genres
+insert into public.genres (id, name, description, created_at) values
+  ('genre-electronic', 'Electronic', 'Electronic music with synthesized sounds and modern production.', '2024-01-01T00:00:00Z'),
+  ('genre-synthwave',  'Synthwave',  'Retro-futuristic sound inspired by 80s electronic aesthetics.',   '2024-01-01T00:00:00Z'),
+  ('genre-hiphop',     'Hip-Hop',    'Rhythmic vocal-driven genre focused on beats and lyrical flow.',  '2024-01-01T00:00:00Z'),
+  ('genre-chill',      'Chill',      'Relaxed, mellow tracks designed for calm listening moments.',     '2024-01-01T00:00:00Z'),
+  ('genre-rnb',        'R&B',        'Rhythm and blues blending soulful vocals with groove-driven music.','2024-01-01T00:00:00Z')
+on conflict (id) do nothing;
+
 -- Users
-insert into public.users (id, username, email, role, bio) values
-  ('user-a', 'UserA', 'usera@soundshare.com', 'user', 'Music enthusiast and playlist curator. Always looking for the next great track!'),
-  ('user-b', 'UserB', 'userb@soundshare.com', 'user', 'Indie rock lover. Sharing my favorite discoveries with the community.'),
-  ('admin', 'Admin', 'admin@soundshare.com', 'admin', 'SoundShare platform administrator. Keeping the community safe and sound.')
+insert into public.users (
+  id, username, email, role, bio, first_name, last_name, privacity, img, fav_genres, fav_song, mood
+) values
+  (
+    'user-a', 'UserA', 'usera@soundshare.com', 'user',
+    'Music enthusiast and playlist curator. Always looking for the next great track!',
+    'User', 'User A', 'public', null, 'genre-electronic', null, 'Energetic'
+  ),
+  (
+    'user-b', 'UserB', 'userb@soundshare.com', 'user',
+    'Indie rock lover. Sharing my favorite discoveries with the community.',
+    'User', 'User B', 'public', null, 'genre-hiphop', null, 'Chill'
+  ),
+  (
+    'admin', 'Admin', 'admin@soundshare.com', 'admin',
+    'SoundShare platform administrator. Keeping the community safe and sound.',
+    'Admin', 'Platform Admin', 'public', null, 'genre-synthwave', null, 'Focused'
+  )
 on conflict (id) do nothing;
 
 -- Artists
@@ -17,20 +40,34 @@ insert into public.artists (id, name, verified) values
 on conflict (id) do nothing;
 
 -- Songs
-insert into public.songs (id, title, artist_id, genre, provider, cover_image_url, created_at, duration) values
-  ('song-1',  'Starlight Dreams',   'artist-1', 'Electronic', 'Spotify',      '/placeholder.svg?height=300&width=300', '2024-01-15T10:00:00Z', 245),
-  ('song-2',  'Midnight Highway',   'artist-2', 'Synthwave',  'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-01-20T14:30:00Z', 312),
-  ('song-3',  'Urban Pulse',        'artist-3', 'Hip-Hop',    'Spotify',      '/placeholder.svg?height=300&width=300', '2024-02-01T09:00:00Z', 198),
-  ('song-4',  'Ocean Breeze',       'artist-4', 'Chill',      'SoundCloud',   '/placeholder.svg?height=300&width=300', '2024-02-10T16:45:00Z', 267),
-  ('song-5',  'City Lights',        'artist-5', 'R&B',        'Spotify',      '/placeholder.svg?height=300&width=300', '2024-02-15T11:20:00Z', 224),
-  ('song-6',  'Neon Glow',          'artist-1', 'Electronic', 'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-02-20T08:00:00Z', 289),
-  ('song-7',  'Street Poetry',      'artist-5', 'Hip-Hop',    'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-01T13:15:00Z', 231),
-  ('song-8',  'Retro Wave',         'artist-2', 'Synthwave',  'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-05T17:30:00Z', 276),
-  ('song-9',  'Digital Love',       'artist-3', 'Electronic', 'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-03-10T10:45:00Z', 203),
-  ('song-10', 'Sunset Boulevard',   'artist-4', 'Chill',      'SoundCloud',   '/placeholder.svg?height=300&width=300', '2024-03-15T15:00:00Z', 256),
-  ('song-11', 'Electric Soul',      'artist-1', 'R&B',        'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-20T09:30:00Z', 218),
-  ('song-12', 'Late Night Drive',   'artist-2', 'Synthwave',  'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-03-25T22:00:00Z', 342)
+insert into public.songs (id, title, artist_id, genre_id, provider, cover_image_url, created_at, duration) values
+  ('song-1',  'Starlight Dreams',   'artist-1', 'genre-electronic', 'Spotify',      '/placeholder.svg?height=300&width=300', '2024-01-15T10:00:00Z', 245),
+  ('song-2',  'Midnight Highway',   'artist-2', 'genre-synthwave',  'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-01-20T14:30:00Z', 312),
+  ('song-3',  'Urban Pulse',        'artist-3', 'genre-hiphop',     'Spotify',      '/placeholder.svg?height=300&width=300', '2024-02-01T09:00:00Z', 198),
+  ('song-4',  'Ocean Breeze',       'artist-4', 'genre-chill',      'SoundCloud',   '/placeholder.svg?height=300&width=300', '2024-02-10T16:45:00Z', 267),
+  ('song-5',  'City Lights',        'artist-5', 'genre-rnb',        'Spotify',      '/placeholder.svg?height=300&width=300', '2024-02-15T11:20:00Z', 224),
+  ('song-6',  'Neon Glow',          'artist-1', 'genre-electronic', 'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-02-20T08:00:00Z', 289),
+  ('song-7',  'Street Poetry',      'artist-5', 'genre-hiphop',     'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-01T13:15:00Z', 231),
+  ('song-8',  'Retro Wave',         'artist-2', 'genre-synthwave',  'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-05T17:30:00Z', 276),
+  ('song-9',  'Digital Love',       'artist-3', 'genre-electronic', 'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-03-10T10:45:00Z', 203),
+  ('song-10', 'Sunset Boulevard',   'artist-4', 'genre-chill',      'SoundCloud',   '/placeholder.svg?height=300&width=300', '2024-03-15T15:00:00Z', 256),
+  ('song-11', 'Electric Soul',      'artist-1', 'genre-rnb',        'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-20T09:30:00Z', 218),
+  ('song-12', 'Late Night Drive',   'artist-2', 'genre-synthwave',  'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-03-25T22:00:00Z', 342)
 on conflict (id) do nothing;
+
+-- Optional user favorite songs (set after songs exist)
+update public.users set fav_song = 'song-1' where id = 'user-a';
+update public.users set fav_song = 'song-3' where id = 'user-b';
+update public.users set fav_song = 'song-2' where id = 'admin';
+
+-- User favorite genres (multi-select support)
+insert into public.user_favorite_genres (user_id, genre_id) values
+  ('user-a', 'genre-electronic'),
+  ('user-a', 'genre-synthwave'),
+  ('user-b', 'genre-hiphop'),
+  ('user-b', 'genre-chill'),
+  ('admin', 'genre-synthwave')
+on conflict (user_id, genre_id) do nothing;
 
 -- Shares
 insert into public.shares (id, user_id, song_id, caption_text, visibility, created_at, status) values

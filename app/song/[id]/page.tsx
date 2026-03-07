@@ -1,7 +1,6 @@
 "use client"
 
 import { use, useState } from "react"
-import { notFound } from "next/navigation"
 import Link from "next/link"
 import { 
   Heart, 
@@ -35,16 +34,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useApp } from "@/lib/store"
+import { useApp } from "@/mvc/controllers/store"
 import { useToast } from "@/hooks/use-toast"
-import { formatDistanceToNow, formatTime } from "@/lib/date-utils"
-import type { ShareVisibility } from "@/lib/types"
+import { formatDistanceToNow, formatTime } from "@/mvc/controllers/date-utils"
+import type { ShareVisibility } from "@/mvc/models/types"
 
 export default function SongDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const { 
     getSongById, 
     getArtistById, 
+    getGenreById,
     getUserById,
     getCommentsForSong, 
     getReactionsForTarget,
@@ -72,10 +72,21 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
   
   const song = getSongById(id)
   if (!song) {
-    notFound()
+    return (
+      <div className="text-center py-12">
+        <h1 className="text-2xl font-bold">Song not found</h1>
+        <p className="text-muted-foreground mt-2">
+          This song does not exist or is no longer available.
+        </p>
+        <Link href="/explore">
+          <Button className="mt-4">Back to Explore</Button>
+        </Link>
+      </div>
+    )
   }
   
   const artist = getArtistById(song.artistId)
+  const genre = getGenreById(song.genreId)
   const comments = getCommentsForSong(id)
   const reactions = getReactionsForTarget("song", id)
   const roomsPlayingSong = getRoomsPlayingSong(id)
@@ -148,7 +159,7 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
         </div>
         <div className="flex-1">
           <div className="flex flex-wrap gap-2 mb-2">
-            <Badge variant="secondary">{song.genre}</Badge>
+            <Badge variant="secondary">{genre?.name ?? "Unknown Genre"}</Badge>
             <Badge variant="outline">{song.provider}</Badge>
           </div>
           <h1 className="text-3xl font-bold">{song.title}</h1>

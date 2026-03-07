@@ -4,7 +4,7 @@ import { TrendingUp, Radio, Share2 } from "lucide-react"
 import { SongCard } from "@/components/song-card"
 import { RoomCard } from "@/components/room-card"
 import { ShareCard } from "@/components/share-card"
-import { useApp } from "@/lib/store"
+import { useApp } from "@/mvc/controllers/store"
 
 export default function HomePage() {
   const { songs, shares, getActiveRooms, getSongReactionCount, getSongCommentCount } = useApp()

@@ -11,33 +11,36 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { SongCard } from "@/components/song-card"
-import { useApp } from "@/lib/store"
+import { useApp } from "@/mvc/controllers/store"
 
 export default function ExplorePage() {
-  const { songs, artists } = useApp()
+  const { songs, artists, genres: appGenres } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [genreFilter, setGenreFilter] = useState("all")
   const [artistFilter, setArtistFilter] = useState("all")
 
   // Get unique genres
-  const genres = useMemo(() => {
-    const uniqueGenres = new Set(songs.map(s => s.genre))
-    return Array.from(uniqueGenres).sort()
-  }, [songs])
+  const genreOptions = useMemo(() => {
+    return [...appGenres].sort((a, b) => a.name.localeCompare(b.name))
+  }, [appGenres])
 
   // Filter songs
   const filteredSongs = useMemo(() => {
     return songs.filter(song => {
       const artist = artists.find(a => a.id === song.artistId)
+      const songGenre = appGenres.find((genre) => genre.id === song.genreId)
       const matchesSearch = 
         song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         artist?.name.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesGenre = genreFilter === "all" || song.genre === genreFilter
+      const matchesGenre = genreFilter === "all" || song.genreId === genreFilter
       const matchesArtist = artistFilter === "all" || song.artistId === artistFilter
       
-      return matchesSearch && matchesGenre && matchesArtist
+      return (
+        matchesSearch ||
+        songGenre?.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) && matchesGenre && matchesArtist
     })
-  }, [songs, artists, searchQuery, genreFilter, artistFilter])
+  }, [songs, artists, appGenres, searchQuery, genreFilter, artistFilter])
 
   return (
     <div className="space-y-6">
@@ -67,8 +70,8 @@ export default function ExplorePage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Genres</SelectItem>
-              {genres.map(genre => (
-                <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+              {genreOptions.map(genre => (
+                <SelectItem key={genre.id} value={genre.id}>{genre.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>

@@ -15,10 +15,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { useApp } from "@/lib/store"
+import { useApp } from "@/mvc/controllers/store"
 import { useToast } from "@/hooks/use-toast"
-import type { Share } from "@/lib/types"
-import { formatDistanceToNow } from "@/lib/date-utils"
+import type { Share } from "@/mvc/models/types"
+import { formatDistanceToNow } from "@/mvc/controllers/date-utils"
 import { useState } from "react"
 
 interface ShareCardProps {
@@ -32,8 +32,10 @@ export function ShareCard({ share }: ShareCardProps) {
     getUserById, 
     getReactionsForTarget, 
     addReaction, 
+    removeReaction,
     hasUserReacted,
-    addReport 
+    addReport,
+    currentUserId,
   } = useApp()
   const { toast } = useToast()
   const [reportReason, setReportReason] = useState("")
@@ -50,11 +52,20 @@ export function ShareCard({ share }: ShareCardProps) {
   const hasLoved = hasUserReacted("share", share.id, "love")
 
   const handleReaction = (type: "like" | "love") => {
+    const existingReaction = reactions.find(
+      (reaction) => reaction.userId === currentUserId && reaction.type === type
+    )
+
+    if (existingReaction) {
+      removeReaction(existingReaction.id)
+      return
+    }
+
     const success = addReaction("share", share.id, type)
     if (!success) {
       toast({
-        title: "Already reacted",
-        description: `You have already ${type}d this share.`,
+        title: "Reaction error",
+        description: "Could not update reaction. Try again.",
         variant: "destructive",
       })
     }
