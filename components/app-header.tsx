@@ -41,11 +41,6 @@ export function AppHeader({ onToggleMobileMenu }: AppHeaderProps) {
           </div>
         </div>
 
-        {/* Simulation Banner */}
-        <Badge variant="outline" className="hidden md:flex text-xs">
-          UI simulation with mock data (no real backend)
-        </Badge>
-
         {/* Switchers */}
         <div className="flex items-center gap-2 lg:gap-3">
           {/* Identity Switcher */}

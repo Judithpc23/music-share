@@ -80,26 +80,6 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
         </TooltipProvider>
       </nav>
 
-      {/* IS Components Helper */}
-      <div className="mt-auto p-4">
-        <div className="rounded-lg border border-border bg-muted/50 p-3 text-xs">
-          <p className="font-semibold text-foreground mb-2">IS Components</p>
-          <ul className="space-y-1 text-muted-foreground">
-            <li>
-              <span className="font-medium">People:</span> Roles, Users
-            </li>
-            <li>
-              <span className="font-medium">Processes:</span> Explore, Share, React
-            </li>
-            <li>
-              <span className="font-medium">Data:</span> Songs, Comments
-            </li>
-            <li>
-              <span className="font-medium">Controls:</span> Moderation
-            </li>
-          </ul>
-        </div>
-      </div>
     </>
   )
 }
