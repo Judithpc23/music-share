@@ -19,14 +19,6 @@ export default function ExplorePage() {
   const [genreFilter, setGenreFilter] = useState("all")
   const [artistFilter, setArtistFilter] = useState("all")
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
   // Get unique genres
   const genres = useMemo(() => {
     const uniqueGenres = new Set(songs.map(s => s.genre))
@@ -46,6 +38,14 @@ export default function ExplorePage() {
       return matchesSearch && matchesGenre && matchesArtist
     })
   }, [songs, artists, searchQuery, genreFilter, artistFilter])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
