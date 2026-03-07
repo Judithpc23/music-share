@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { User, Music, Activity, Heart, MessageCircle, Share2 } from "lucide-react"
+import { User, Music, Activity, Heart, MessageCircle, Share2, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -24,10 +24,24 @@ export default function ProfilePage() {
     comments, 
     getUserById, 
     getSongById,
-    getArtistById
+    getArtistById,
+    isLoading
   } = useApp()
   
-  const [selectedUserId, setSelectedUserId] = useState(users[0]?.id || "")
+  const [selectedUserId, setSelectedUserId] = useState("")
+  
+  // Set initial user when users load
+  if (!isLoading && users.length > 0 && !selectedUserId) {
+    setSelectedUserId(users[0].id)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
   
   const selectedUser = getUserById(selectedUserId)
   const userShares = getSharesForUser(selectedUserId)
