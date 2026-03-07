@@ -1,14 +1,22 @@
 "use client"
 
-import { TrendingUp, Radio, Share2 } from "lucide-react"
+import { TrendingUp, Radio, Share2, Loader2 } from "lucide-react"
 import { SongCard } from "@/components/song-card"
 import { RoomCard } from "@/components/room-card"
 import { ShareCard } from "@/components/share-card"
 import { useApp } from "@/lib/store"
 
 export default function HomePage() {
-  const { songs, shares, getActiveRooms, getSongReactionCount, getSongCommentCount } = useApp()
+  const { songs, shares, getActiveRooms, getSongReactionCount, getSongCommentCount, isLoading } = useApp()
   const activeRooms = getActiveRooms()
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
   
   // Get trending songs (sorted by total reactions + comments)
   const trendingSongs = [...songs]

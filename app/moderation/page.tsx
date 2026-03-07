@@ -12,7 +12,8 @@ import {
   CheckCircle,
   MessageCircle,
   Share2,
-  Music
+  Music,
+  Loader2
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -59,12 +60,21 @@ export default function ModerationPage() {
     updateReportStatus,
     getSongCommentCount,
     getSongShareCount,
-    simulateLostRecord
+    simulateLostRecord,
+    isLoading
   } = useApp()
   const { toast } = useToast()
   
   const [statusFilter, setStatusFilter] = useState<"all" | ReportStatus>("all")
   const [lostRecordId, setLostRecordId] = useState<string | null>(null)
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   // Check if admin
   if (currentRole !== "admin") {
@@ -102,11 +112,11 @@ export default function ModerationPage() {
 
   const pendingReportsCount = reports.filter(r => r.status === "pending").length
 
-  const handleHideContent = (targetType: "comment" | "share", targetId: string) => {
+  const handleHideContent = async (targetType: "comment" | "share", targetId: string) => {
     if (targetType === "comment") {
-      updateCommentStatus(targetId, "hidden")
+      await updateCommentStatus(targetId, "hidden")
     } else {
-      updateShareStatus(targetId, "hidden")
+      await updateShareStatus(targetId, "hidden")
     }
     toast({
       title: "Content hidden",
@@ -114,11 +124,11 @@ export default function ModerationPage() {
     })
   }
 
-  const handleDeleteContent = (targetType: "comment" | "share", targetId: string) => {
+  const handleDeleteContent = async (targetType: "comment" | "share", targetId: string) => {
     if (targetType === "comment") {
-      updateCommentStatus(targetId, "deleted")
+      await updateCommentStatus(targetId, "deleted")
     } else {
-      updateShareStatus(targetId, "deleted")
+      await updateShareStatus(targetId, "deleted")
     }
     toast({
       title: "Content deleted",
@@ -126,21 +136,21 @@ export default function ModerationPage() {
     })
   }
 
-  const handleResolveReport = (reportId: string) => {
-    updateReportStatus(reportId, "resolved")
+  const handleResolveReport = async (reportId: string) => {
+    await updateReportStatus(reportId, "resolved")
     toast({
       title: "Report resolved",
       description: "The report has been marked as resolved.",
     })
   }
 
-  const handleSimulateLostRecord = () => {
-    const deletedId = simulateLostRecord()
+  const handleSimulateLostRecord = async () => {
+    const deletedId = await simulateLostRecord()
     if (deletedId) {
       setLostRecordId(deletedId)
       toast({
         title: "Record lost (simulation)",
-        description: "A comment record has been removed from local state.",
+        description: "A comment record has been removed from the database.",
         variant: "destructive",
       })
     } else {

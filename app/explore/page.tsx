@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, Filter } from "lucide-react"
+import { Search, Filter, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -14,7 +14,7 @@ import { SongCard } from "@/components/song-card"
 import { useApp } from "@/lib/store"
 
 export default function ExplorePage() {
-  const { songs, artists } = useApp()
+  const { songs, artists, isLoading } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [genreFilter, setGenreFilter] = useState("all")
   const [artistFilter, setArtistFilter] = useState("all")
@@ -38,6 +38,14 @@ export default function ExplorePage() {
       return matchesSearch && matchesGenre && matchesArtist
     })
   }, [songs, artists, searchQuery, genreFilter, artistFilter])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

@@ -12,7 +12,8 @@ import {
   MessageCircle, 
   Flag,
   ExternalLink,
-  Users
+  Users,
+  Loader2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -57,7 +58,8 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     createRoom,
     joinRoom,
     currentUserId,
-    roomMembers
+    roomMembers,
+    isLoading
   } = useApp()
   const { toast } = useToast()
   
@@ -70,6 +72,14 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
   const [reportReason, setReportReason] = useState("")
   const [reportCommentId, setReportCommentId] = useState<string | null>(null)
   
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   const song = getSongById(id)
   if (!song) {
     notFound()
@@ -85,8 +95,8 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
   const hasLiked = hasUserReacted("song", id, "like")
   const hasLoved = hasUserReacted("song", id, "love")
 
-  const handleReaction = (type: "like" | "love") => {
-    const success = addReaction("song", id, type)
+  const handleReaction = async (type: "like" | "love") => {
+    const success = await addReaction("song", id, type)
     if (!success) {
       toast({
         title: "Already reacted",
@@ -96,9 +106,9 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!commentText.trim()) return
-    addComment(id, commentText)
+    await addComment(id, commentText)
     setCommentText("")
     toast({
       title: "Comment added",
@@ -106,9 +116,9 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     })
   }
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!shareCaption.trim()) return
-    addShare(id, shareCaption, shareVisibility)
+    await addShare(id, shareCaption, shareVisibility)
     setShareCaption("")
     setShareDialogOpen(false)
     toast({
@@ -117,9 +127,9 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     })
   }
 
-  const handleCreateRoom = () => {
+  const handleCreateRoom = async () => {
     if (!roomName.trim()) return
-    createRoom(roomName, id)
+    await createRoom(roomName, id)
     setRoomName("")
     setRoomDialogOpen(false)
     toast({
@@ -128,9 +138,9 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     })
   }
 
-  const handleReportComment = () => {
+  const handleReportComment = async () => {
     if (!reportReason.trim() || !reportCommentId) return
-    addReport("comment", reportCommentId, reportReason)
+    await addReport("comment", reportCommentId, reportReason)
     setReportReason("")
     setReportCommentId(null)
     toast({
