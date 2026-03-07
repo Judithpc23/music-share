@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Heart, MessageCircle, Share2, BadgeCheck } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useApp } from "@/lib/store"
+import { useApp } from "@/mvc/controllers/store"
 
 interface SongCardProps {
   songId: string
@@ -12,11 +12,12 @@ interface SongCardProps {
 }
 
 export function SongCard({ songId, showMetrics = true }: SongCardProps) {
-  const { getSongById, getArtistById, getSongReactionCount, getSongCommentCount } = useApp()
+  const { getSongById, getGenreById, getArtistById, getSongReactionCount, getSongCommentCount } = useApp()
   
   const song = getSongById(songId)
   if (!song) return null
   
+  const genre = getGenreById(song.genreId)
   const artist = getArtistById(song.artistId)
   const reactionCount = getSongReactionCount(songId)
   const commentCount = getSongCommentCount(songId)
@@ -29,7 +30,7 @@ export function SongCard({ songId, showMetrics = true }: SongCardProps) {
             <div className="text-4xl font-bold text-primary/30">{song.title.charAt(0)}</div>
           </div>
           <Badge className="absolute top-2 right-2" variant="secondary">
-            {song.genre}
+            {genre?.name ?? "Unknown"}
           </Badge>
         </div>
         <CardContent className="p-3">

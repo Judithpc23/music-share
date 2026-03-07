@@ -1,24 +1,19 @@
 "use client"
 
-import { useState } from "react"
-import { User, Music, Activity, Heart, MessageCircle, Share2, Loader2 } from "lucide-react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { User, Music, Activity, Heart, MessageCircle, Share2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { ShareCard } from "@/components/share-card"
-import { useApp } from "@/lib/store"
-import { formatDistanceToNow } from "@/lib/date-utils"
+import { useApp } from "@/mvc/controllers/store"
+import { formatDistanceToNow } from "@/mvc/controllers/date-utils"
 
 export default function ProfilePage() {
+  const router = useRouter()
   const { 
-    users, 
+    currentUserId,
     getSharesForUser, 
     reactions, 
     comments, 
@@ -27,30 +22,15 @@ export default function ProfilePage() {
     getArtistById,
     isLoading
   } = useApp()
-  
-  const [selectedUserId, setSelectedUserId] = useState("")
-  
-  // Set initial user when users load
-  if (!isLoading && users.length > 0 && !selectedUserId) {
-    setSelectedUserId(users[0].id)
-  }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-  
-  const selectedUser = getUserById(selectedUserId)
-  const userShares = getSharesForUser(selectedUserId)
+  const selectedUser = getUserById(currentUserId)
+  const userShares = currentUserId ? getSharesForUser(currentUserId) : []
   
   // Get user's reactions
-  const userReactions = reactions.filter(r => r.userId === selectedUserId)
+  const userReactions = reactions.filter((r) => r.userId === currentUserId)
   
   // Get user's comments
-  const userComments = comments.filter(c => c.userId === selectedUserId && c.status === "active")
+  const userComments = comments.filter((c) => c.userId === currentUserId && c.status === "active")
   
   // Combine activities and sort by date
   const activities = [
@@ -66,6 +46,14 @@ export default function ProfilePage() {
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
+  useEffect(() => {
+    if (!selectedUser) {
+      router.replace("/auth")
+    }
+  }, [selectedUser, router])
+
+  if (!selectedUser) return null
+
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Profile Header */}
@@ -77,18 +65,7 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map(user => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.username}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <p className="text-lg font-semibold">{selectedUser.username}</p>
                 <Badge variant={selectedUser?.role === "admin" ? "default" : "secondary"}>
                   {selectedUser?.role}
                 </Badge>

@@ -1,30 +1,61 @@
-# SoundShare UI simulation
+# SoundShare
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+SoundShare is a Next.js app connected to Supabase/Postgres for music sharing, reactions, comments, moderation, and listening rooms.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/judithperezconde2331-6730s-projects/v0-sound-share-ui-simulation)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/nDXiNUng6zI)
+## Tech Stack
 
-## Overview
+- Next.js (App Router)
+- React + TypeScript
+- Supabase (Postgres + Auth)
+- Radix UI + Tailwind CSS
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+## Project Structure
 
-## Deployment
+- `app/`: pages and routes (view layer)
+- `components/`: reusable UI components
+- `hooks/`: reusable client hooks
+- `mvc/models/`: domain types, Supabase client, DB mappers
+- `mvc/controllers/`: app logic, auth logic, state controller
+- `scripts/`: SQL schema/migrations/seed scripts
 
-Your project is live at:
+## Environment Variables
 
-**[https://vercel.com/judithperezconde2331-6730s-projects/v0-sound-share-ui-simulation](https://vercel.com/judithperezconde2331-6730s-projects/v0-sound-share-ui-simulation)**
+Create `.env.local` (you can copy from `.env.example`) and set:
 
-## Build your app
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-Continue building your app on:
+## Database Setup (Supabase SQL Editor)
 
-**[https://v0.app/chat/nDXiNUng6zI](https://v0.app/chat/nDXiNUng6zI)**
+Run scripts in this order for a fresh database:
 
-## How It Works
+1. `scripts/001_create_schema.sql`
+2. `scripts/002_seed_data.sql`
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+If you are migrating an existing DB, run additionally:
+
+1. `scripts/004_auth_user_genres_migration.sql`
+
+Note: `scripts/003_create_tables.sql` is an alternative table-creation script; do not run it on top of an already initialized schema unless you know why.
+
+## Run Locally
+
+1. `npm install`
+2. `npm run dev`
+
+Open `http://localhost:3000`.
+
+## Authentication
+
+- Email/password auth is handled by Supabase Auth.
+- Auth UI is available at `/auth`.
+- Registration writes profile data into `public.users` and favorite genres into `public.user_favorite_genres`.
+
+## Data Flow
+
+- UI calls `useApp()` from `mvc/controllers/store.tsx`.
+- `useApp()` is backed by `useAppController()` in `mvc/controllers/use-app-controller.ts`.
+- Controller modules read/write Supabase through:
+  - `mvc/models/supabase-client.ts`
+  - `mvc/models/supabase-mappers.ts`
+  - `mvc/models/types.ts`

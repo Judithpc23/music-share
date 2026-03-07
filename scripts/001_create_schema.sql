@@ -1,13 +1,28 @@
 -- SoundShare Database Schema
 -- Creates all tables for the SoundShare social music platform
 
--- Users (simulated, no auth)
+-- Genres
+create table if not exists public.genres (
+  id text primary key,
+  name text not null unique,
+  description varchar(150) not null,
+  created_at timestamptz not null default now()
+);
+
+-- Users
 create table if not exists public.users (
   id text primary key,
   username text not null unique,
   email text not null unique,
   role text not null default 'user' check (role in ('user', 'admin')),
-  bio text
+  bio text,
+  first_name text not null default '',
+  last_name text not null default '',
+  privacity text not null default 'public' check (privacity in ('public', 'private')),
+  img text,
+  fav_genres text references public.genres(id),
+  fav_song text unique,
+  mood text not null default ''
 );
 
 -- Artists
@@ -22,7 +37,7 @@ create table if not exists public.songs (
   id text primary key,
   title text not null,
   artist_id text not null references public.artists(id),
-  genre text not null,
+  genre_id text not null references public.genres(id),
   provider text not null,
   cover_image_url text,
   created_at timestamptz not null default now(),
@@ -111,8 +126,31 @@ create table if not exists public.room_activities (
   details text
 );
 
+-- User favorite genres (supports selecting multiple genres)
+create table if not exists public.user_favorite_genres (
+  user_id text not null references public.users(id) on delete cascade,
+  genre_id text not null references public.genres(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, genre_id)
+);
+
+-- Optional favorite song relationship
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'users_fav_song_fkey'
+  ) then
+    alter table public.users
+      add constraint users_fav_song_fkey
+      foreign key (fav_song) references public.songs(id);
+  end if;
+end $$;
+
 -- Enable RLS on all tables (public access for simulation)
 alter table public.users enable row level security;
+alter table public.genres enable row level security;
 alter table public.artists enable row level security;
 alter table public.songs enable row level security;
 alter table public.shares enable row level security;
@@ -123,9 +161,11 @@ alter table public.listening_rooms enable row level security;
 alter table public.room_members enable row level security;
 alter table public.playback_states enable row level security;
 alter table public.room_activities enable row level security;
+alter table public.user_favorite_genres enable row level security;
 
 -- Public read/write policies for simulation (no auth required)
 create policy "public_access" on public.users for all using (true) with check (true);
+create policy "public_access" on public.genres for all using (true) with check (true);
 create policy "public_access" on public.artists for all using (true) with check (true);
 create policy "public_access" on public.songs for all using (true) with check (true);
 create policy "public_access" on public.shares for all using (true) with check (true);
@@ -136,3 +176,4 @@ create policy "public_access" on public.listening_rooms for all using (true) wit
 create policy "public_access" on public.room_members for all using (true) with check (true);
 create policy "public_access" on public.playback_states for all using (true) with check (true);
 create policy "public_access" on public.room_activities for all using (true) with check (true);
+create policy "public_access" on public.user_favorite_genres for all using (true) with check (true);

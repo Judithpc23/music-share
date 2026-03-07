@@ -1,23 +1,33 @@
 "use client"
 
-import { Music, Menu } from "lucide-react"
-import { useApp } from "@/lib/store"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { useMemo } from "react"
+import { useRouter } from "next/navigation"
+import { Music, Menu, LogOut } from "lucide-react"
+import { useApp } from "@/mvc/controllers/store"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { signOutUser } from "@/mvc/controllers/auth-controller"
 
 interface AppHeaderProps {
   onToggleMobileMenu: () => void
 }
 
 export function AppHeader({ onToggleMobileMenu }: AppHeaderProps) {
-  const { currentUserId, currentRole, setCurrentUser, setCurrentRole, users } = useApp()
+  const { currentUserId, currentRole, users } = useApp()
+  const router = useRouter()
+  const currentUser = useMemo(
+    () => users.find((user) => user.id === currentUserId),
+    [users, currentUserId]
+  )
+
+  const handleSignOut = async () => {
+    const { error } = await signOutUser()
+    if (error) {
+      console.error("[auth] sign out failed", error)
+      return
+    }
+    router.replace("/auth")
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border bg-card">
@@ -41,38 +51,17 @@ export function AppHeader({ onToggleMobileMenu }: AppHeaderProps) {
           </div>
         </div>
 
-        {/* Switchers */}
-        <div className="flex items-center gap-2 lg:gap-3">
-          {/* Identity Switcher */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-muted-foreground hidden lg:inline">Identity:</span>
-            <Select value={currentUserId} onValueChange={setCurrentUser}>
-              <SelectTrigger className="w-[100px] lg:w-[120px] h-8 text-xs lg:text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.username}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        {/* User Context */}
+        <Badge variant="outline" className="hidden md:flex text-xs">
+          {currentUser?.username ?? currentUser?.email ?? "Authenticated"} - {currentRole}
+        </Badge>
 
-          {/* Role Switcher */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-muted-foreground hidden lg:inline">Role:</span>
-            <Select value={currentRole} onValueChange={(v) => setCurrentRole(v as "user" | "admin")}>
-              <SelectTrigger className="w-[80px] lg:w-[100px] h-8 text-xs lg:text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Session Actions */}
+        <div className="flex items-center gap-2 lg:gap-3">
+          <Button variant="outline" size="sm" className="h-8" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-1" />
+            Logout
+          </Button>
         </div>
       </div>
     </header>

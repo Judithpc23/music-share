@@ -1,5 +1,6 @@
 // User & Auth types
 export type Role = "user" | "admin"
+export type ProfilePrivacity = "public" | "private"
 
 export interface User {
   id: string
@@ -7,6 +8,13 @@ export interface User {
   email: string
   role: Role
   bio: string
+  firstName: string
+  lastName: string
+  privacity: ProfilePrivacity
+  img?: string
+  favGenres?: string
+  favSong?: string
+  mood: string
 }
 
 // Artist types
@@ -16,12 +24,20 @@ export interface Artist {
   verified: boolean
 }
 
+// Genre types
+export interface Genre {
+  id: string
+  name: string
+  description: string
+  createdAt: string
+}
+
 // Song types
 export interface Song {
   id: string
   title: string
   artistId: string
-  genre: string
+  genreId: string
   provider: string
   coverImageUrl: string
   createdAt: string
@@ -120,6 +136,7 @@ export interface RoomActivity {
 // App State
 export interface AppState {
   users: User[]
+  genres: Genre[]
   artists: Artist[]
   songs: Song[]
   shares: Share[]

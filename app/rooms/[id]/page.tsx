@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
-import { useApp } from "@/lib/store"
+import { useApp } from "@/mvc/controllers/store"
 import { useToast } from "@/hooks/use-toast"
-import { formatDistanceToNow, formatTime } from "@/lib/date-utils"
+import { formatDistanceToNow, formatTime } from "@/mvc/controllers/date-utils"
 
 export default function RoomDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -32,6 +32,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     getRoomById, 
     getSongById, 
     getArtistById, 
+    getGenreById,
     getUserById,
     getRoomMembers,
     getRoomPlaybackState,
@@ -48,6 +49,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
   const room = getRoomById(id)
   const song = room ? getSongById(room.currentSongId) : null
   const artist = song ? getArtistById(song.artistId) : null
+  const genre = song ? getGenreById(song.genreId) : null
   const host = room ? getUserById(room.hostUserId) : null
   const members = getRoomMembers(id)
   const playbackState = getRoomPlaybackState(id)
@@ -184,7 +186,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
               <span className="text-3xl font-bold text-primary/30">{song?.title.charAt(0)}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <Badge variant="secondary" className="mb-2">{song?.genre}</Badge>
+              <Badge variant="secondary" className="mb-2">{genre?.name ?? "Unknown Genre"}</Badge>
               <h3 className="text-xl font-semibold truncate">{song?.title}</h3>
               <div className="flex items-center gap-1 text-muted-foreground">
                 <span>{artist?.name}</span>
