@@ -24,6 +24,22 @@ Create `.env.local` (you can copy from `.env.example`) and set:
 
 - `NEXT_PUBLIC_API_URL`
 
+Example:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+```
+
+You can create it from the example file:
+
+```bash
+# Linux / macOS
+cp .env.example .env.local
+
+# Windows (PowerShell)
+Copy-Item .env.example .env.local
+```
+
 ## Database Setup (Supabase SQL Editor)
 
 Run scripts in this order for a fresh database:
@@ -39,10 +55,16 @@ Note: `scripts/003_create_tables.sql` is an alternative table-creation script; d
 
 ## Run Locally
 
-1. `npm install`
-2. `npm run dev`
+1. Start the backend first (`Back-End/`), by default on `http://localhost:3000`.
+2. Install frontend dependencies:
+   - `npm install`
+3. Run frontend on a different port (recommended `3001`):
+   - `npm run dev -- -p 3001`
 
-Open `http://localhost:3000`.
+Open `http://localhost:3001`.
+
+Note:
+- Backend and frontend cannot both run on port `3000`.
 
 ## Authentication
 

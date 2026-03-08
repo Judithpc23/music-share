@@ -488,18 +488,18 @@ export class EngagementService {
       allComments.data[
         Math.floor(Math.random() * allComments.data.length)
       ]
-    const commentId = randomComment.id
+    const randomCommentId = randomComment.id
 
     const { error: deleteError } = await supabase
       .from('comments')
       .delete()
-      .eq('id', commentId)
+      .eq('id', randomCommentId)
 
     if (deleteError) {
       console.error('Failed to simulate lost record:', deleteError)
       return { success: false }
     }
 
-    return { success: true, deletedCommentId: commentId }
+    return { success: true, deletedCommentId: randomCommentId }
   }
 }

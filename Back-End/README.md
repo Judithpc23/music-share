@@ -24,6 +24,16 @@ Notes:
 - `PORT` defaults to `3000` if omitted.
 - `CORS_ORIGIN` is optional. If omitted, CORS is open (`origin: true`).
 
+You can create it from the example file:
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+Copy-Item .env.example .env
+```
+
 ## Install
 
 ```bash
