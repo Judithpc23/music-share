@@ -9,7 +9,7 @@ type SignUpInput = {
   firstName: string
   lastName: string
   bio: string
-  privacity: ProfilePrivacity
+  privacity: ProfilePrivacy
   mood: string
   img?: string
   favoriteGenres: string[]
