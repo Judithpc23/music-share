@@ -26,6 +26,7 @@ import {
 import type { ProfilePrivacity } from "@/utils/types"
 
 type GenreOption = { id: string; name: string }
+
 type SongOption = { id: string; title: string }
 
 type RegisterStep = "step-1" | "step-2" | "step-3" | "step-4"
@@ -42,6 +43,7 @@ export default function AuthPage() {
   const [infoMessage, setInfoMessage] = useState("")
   const [genres, setGenres] = useState<GenreOption[]>([])
   const [songs, setSongs] = useState<SongOption[]>([])
+  const [isCatalogsLoading, setIsCatalogsLoading] = useState(true)
 
   const [loginEmail, setLoginEmail] = useState("")
   const [loginPassword, setLoginPassword] = useState("")
@@ -93,10 +95,11 @@ export default function AuthPage() {
       const { data, error } = await loadAuthCatalogs()
       if (error) {
         console.error("[auth] failed to load auth catalogs", error)
-      } else {
-        setGenres(data.genres as GenreOption[])
-        setSongs(data.songs as SongOption[])
       }
+
+      setGenres(Array.isArray(data?.genres) ? data.genres : [])
+      setSongs(Array.isArray(data?.songs) ? data.songs : [])
+      setIsCatalogsLoading(false)
     }
 
     void bootstrap()
@@ -355,8 +358,10 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label>Favorite genres (select at least one)</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-md border p-3 max-h-48 overflow-auto">
-                      {!genres || genres.length === 0 ? (
+                      {isCatalogsLoading ? (
                         <p className="text-sm text-muted-foreground col-span-2">Loading genres...</p>
+                      ) : genres.length === 0 ? (
+                        <p className="text-sm text-muted-foreground col-span-2">No genres available.</p>
                       ) : (
                         genres.map((genre) => (
                           <label key={genre.id} className="flex items-center gap-2 text-sm">

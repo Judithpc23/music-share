@@ -97,8 +97,20 @@ export async function signInWithEmailPassword(email: string, password: string) {
 
 export async function loadAuthCatalogs(): Promise<{ data: AuthCatalogs; error: string | null }> {
   try {
-    const data = await apiClient.get<AuthCatalogs>("/auth/catalogs")
-    return { data, error: null }
+    const response = await apiClient.get<
+      AuthCatalogs | { data: AuthCatalogs; error: string | null }
+    >("/auth/catalogs?ts=" + Date.now())
+
+    const wrapped = response as { data?: AuthCatalogs; error?: string | null }
+    const payload = wrapped?.data ?? (response as AuthCatalogs)
+
+    return {
+      data: {
+        genres: Array.isArray(payload?.genres) ? payload.genres : [],
+        songs: Array.isArray(payload?.songs) ? payload.songs : [],
+      },
+      error: wrapped?.error ?? null,
+    }
   } catch (error) {
     return { data: { genres: [], songs: [] }, error: String(error) }
   }
