@@ -7,8 +7,8 @@ import { Users, Music, Play } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useApp } from "@/mvc/controllers/store"
-import type { ListeningRoom } from "@/mvc/models/types"
+import { useApp } from "@/controllers/store"
+import type { ListeningRoom } from "@/utils/types"
 
 interface RoomCardProps {
   room: ListeningRoom

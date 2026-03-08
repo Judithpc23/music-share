@@ -22,8 +22,8 @@ import {
   loadAuthCatalogs,
   registerWithEmailPassword,
   signInWithEmailPassword,
-} from "@/mvc/controllers/auth-controller"
-import type { ProfilePrivacity } from "@/mvc/models/types"
+} from "@/controllers/auth-controller"
+import type { ProfilePrivacity } from "@/utils/types"
 
 type GenreOption = { id: string; name: string }
 type SongOption = { id: string; title: string }

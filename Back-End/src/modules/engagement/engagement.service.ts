@@ -21,6 +21,24 @@ import { buildId } from '@/common/utils/id-generator'
 
 @Injectable()
 export class EngagementService {
+  async getAllReactions(): Promise<Reaction[]> {
+    const { data, error } = await supabase.from('reactions').select('*')
+
+    if (error) {
+      console.error('Failed to get reactions:', error)
+      return []
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      targetType: row.target_type,
+      targetId: row.target_id,
+      userId: row.user_id,
+      type: row.type,
+      createdAt: row.created_at,
+    }))
+  }
+
   async getReactionsForTarget(
     targetType: ReactionTargetType,
     targetId: string
@@ -73,7 +91,8 @@ export class EngagementService {
     userId: string,
     targetType: ReactionTargetType,
     targetId: string,
-    type: ReactionType
+    type: ReactionType,
+    options?: { id?: string; createdAt?: string }
   ): Promise<{ success: boolean; reaction?: Reaction }> {
     const exists = await this.hasUserReacted(userId, targetType, targetId, type)
     if (exists) {
@@ -81,12 +100,12 @@ export class EngagementService {
     }
 
     const newReaction: Reaction = {
-      id: buildId('reaction'),
+      id: options?.id ?? buildId('reaction'),
       targetType,
       targetId,
       userId,
       type,
-      createdAt: new Date().toISOString(),
+      createdAt: options?.createdAt ?? new Date().toISOString(),
     }
 
     const { error } = await supabase
@@ -137,17 +156,39 @@ export class EngagementService {
     }))
   }
 
+  async getAllComments(): Promise<Comment[]> {
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Failed to get comments:', error)
+      return []
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      songId: row.song_id,
+      userId: row.user_id,
+      content: row.content,
+      createdAt: row.created_at,
+      status: row.status,
+    }))
+  }
+
   async addComment(
     userId: string,
     songId: string,
-    content: string
+    content: string,
+    options?: { id?: string; createdAt?: string }
   ): Promise<{ success: boolean; comment?: Comment }> {
     const newComment: Comment = {
-      id: buildId('comment'),
+      id: options?.id ?? buildId('comment'),
       songId,
       userId,
       content,
-      createdAt: new Date().toISOString(),
+      createdAt: options?.createdAt ?? new Date().toISOString(),
       status: 'active',
     }
 
@@ -227,19 +268,42 @@ export class EngagementService {
     }))
   }
 
+  async getAllShares(): Promise<Share[]> {
+    const { data, error } = await supabase
+      .from('shares')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Failed to get shares:', error)
+      return []
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      songId: row.song_id,
+      captionText: row.caption_text,
+      visibility: row.visibility,
+      createdAt: row.created_at,
+      status: row.status,
+    }))
+  }
+
   async addShare(
     userId: string,
     songId: string,
     captionText: string,
-    visibility: ShareVisibility
+    visibility: ShareVisibility,
+    options?: { id?: string; createdAt?: string }
   ): Promise<{ success: boolean; share?: Share }> {
     const newShare: Share = {
-      id: buildId('share'),
+      id: options?.id ?? buildId('share'),
       userId,
       songId,
       captionText,
       visibility,
-      createdAt: new Date().toISOString(),
+      createdAt: options?.createdAt ?? new Date().toISOString(),
       status: 'active',
     }
 
@@ -276,15 +340,16 @@ export class EngagementService {
     userId: string,
     targetType: 'share' | 'comment',
     targetId: string,
-    reason: string
+    reason: string,
+    options?: { id?: string; createdAt?: string }
   ): Promise<{ success: boolean; report?: Report }> {
     const newReport: Report = {
-      id: buildId('report'),
+      id: options?.id ?? buildId('report'),
       targetType,
       targetId,
       userId,
       reason,
-      createdAt: new Date().toISOString(),
+      createdAt: options?.createdAt ?? new Date().toISOString(),
       status: 'pending',
     }
 
@@ -298,6 +363,28 @@ export class EngagementService {
     }
 
     return { success: true, report: newReport }
+  }
+
+  async getAllReports(): Promise<Report[]> {
+    const { data, error } = await supabase
+      .from('reports')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Failed to get reports:', error)
+      return []
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      targetType: row.target_type,
+      targetId: row.target_id,
+      userId: row.user_id,
+      reason: row.reason,
+      createdAt: row.created_at,
+      status: row.status,
+    }))
   }
 
   async updateReportStatus(
@@ -362,7 +449,21 @@ export class EngagementService {
     return count ?? 0
   }
 
-  async simulateLostRecord(): Promise<{ success: boolean; deletedCommentId?: string }> {
+  async simulateLostRecord(commentId?: string): Promise<{ success: boolean; deletedCommentId?: string }> {
+    if (commentId) {
+      const { error } = await supabase
+        .from('comments')
+        .delete()
+        .eq('id', commentId)
+
+      if (error) {
+        console.error('Failed to simulate lost record:', error)
+        return { success: false }
+      }
+
+      return { success: true, deletedCommentId: commentId }
+    }
+
     const { data, error } = await supabase
       .from('comments')
       .select('id')

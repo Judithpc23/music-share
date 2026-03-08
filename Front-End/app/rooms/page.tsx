@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { RoomCard } from "@/components/room-card"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 import { useToast } from "@/hooks/use-toast"
 
 export default function RoomsPage() {

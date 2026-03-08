@@ -15,10 +15,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 import { useToast } from "@/hooks/use-toast"
-import type { Share } from "@/mvc/models/types"
-import { formatDistanceToNow } from "@/mvc/controllers/date-utils"
+import type { Share } from "@/utils/types"
+import { formatDistanceToNow } from "@/controllers/date-utils"
 import { useState } from "react"
 
 interface ShareCardProps {

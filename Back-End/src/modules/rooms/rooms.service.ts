@@ -20,6 +20,20 @@ import { buildId } from '@/common/utils/id-generator'
 
 @Injectable()
 export class RoomsService {
+  async getAllRooms(): Promise<ListeningRoom[]> {
+    const { data, error } = await supabase
+      .from('listening_rooms')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Failed to get rooms:', error)
+      return []
+    }
+
+    return (data ?? []).map(fromDbListeningRoom)
+  }
+
   async getActiveRooms(): Promise<ListeningRoom[]> {
     const { data, error } = await supabase
       .from('listening_rooms')
@@ -92,13 +106,54 @@ export class RoomsService {
     return (data ?? []).map(fromDbRoomActivity)
   }
 
+  async getAllRoomMembers(): Promise<RoomMember[]> {
+    const { data, error } = await supabase
+      .from('room_members')
+      .select('*')
+
+    if (error) {
+      console.error('Failed to get room members:', error)
+      return []
+    }
+
+    return (data ?? []).map(fromDbRoomMember)
+  }
+
+  async getAllPlaybackStates(): Promise<PlaybackState[]> {
+    const { data, error } = await supabase
+      .from('playback_states')
+      .select('*')
+
+    if (error) {
+      console.error('Failed to get playback states:', error)
+      return []
+    }
+
+    return (data ?? []).map(fromDbPlaybackState)
+  }
+
+  async getAllRoomActivities(): Promise<RoomActivity[]> {
+    const { data, error } = await supabase
+      .from('room_activities')
+      .select('*')
+      .order('timestamp', { ascending: false })
+
+    if (error) {
+      console.error('Failed to get room activities:', error)
+      return []
+    }
+
+    return (data ?? []).map(fromDbRoomActivity)
+  }
+
   async createRoom(
     userId: string,
     name: string,
-    songId: string
+    songId: string,
+    options?: { roomId?: string; activityId?: string; now?: string }
   ): Promise<{ success: boolean; roomId?: string }> {
-    const roomId = buildId('room')
-    const now = new Date().toISOString()
+    const roomId = options?.roomId ?? buildId('room')
+    const now = options?.now ?? new Date().toISOString()
 
     const newRoom: ListeningRoom = {
       id: roomId,
@@ -123,7 +178,7 @@ export class RoomsService {
       lastUpdatedBy: userId,
     }
     const newActivity: RoomActivity = {
-      id: buildId('activity'),
+      id: options?.activityId ?? buildId('activity'),
       roomId,
       userId,
       action: 'joined',
@@ -155,7 +210,8 @@ export class RoomsService {
 
   async joinRoom(
     roomId: string,
-    userId: string
+    userId: string,
+    options?: { activityId?: string; now?: string }
   ): Promise<{ success: boolean }> {
     const alreadyMember = await supabase
       .from('room_members')
@@ -168,7 +224,7 @@ export class RoomsService {
       return { success: false }
     }
 
-    const now = new Date().toISOString()
+    const now = options?.now ?? new Date().toISOString()
     const newMember: RoomMember = {
       roomId,
       userId,
@@ -176,7 +232,7 @@ export class RoomsService {
       isHost: false,
     }
     const newActivity: RoomActivity = {
-      id: buildId('activity'),
+      id: options?.activityId ?? buildId('activity'),
       roomId,
       userId,
       action: 'joined',
@@ -198,11 +254,12 @@ export class RoomsService {
 
   async leaveRoom(
     roomId: string,
-    userId: string
+    userId: string,
+    options?: { activityId?: string; now?: string }
   ): Promise<{ success: boolean }> {
-    const now = new Date().toISOString()
+    const now = options?.now ?? new Date().toISOString()
     const newActivity: RoomActivity = {
-      id: buildId('activity'),
+      id: options?.activityId ?? buildId('activity'),
       roomId,
       userId,
       action: 'left',
@@ -281,14 +338,15 @@ export class RoomsService {
     roomId: string,
     userId: string,
     action: RoomActivity['action'],
-    details?: string
+    details?: string,
+    options?: { activityId?: string; timestamp?: string }
   ): Promise<{ success: boolean }> {
     const newActivity: RoomActivity = {
-      id: buildId('activity'),
+      id: options?.activityId ?? buildId('activity'),
       roomId,
       userId,
       action,
-      timestamp: new Date().toISOString(),
+      timestamp: options?.timestamp ?? new Date().toISOString(),
       details,
     }
 

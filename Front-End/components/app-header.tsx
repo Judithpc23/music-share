@@ -3,10 +3,10 @@
 import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Music, Menu, LogOut } from "lucide-react"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { signOutUser } from "@/mvc/controllers/auth-controller"
+import { signOutUser } from "@/controllers/auth-controller"
 
 interface AppHeaderProps {
   onToggleMobileMenu: () => void

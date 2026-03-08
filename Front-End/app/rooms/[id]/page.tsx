@@ -17,9 +17,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 import { useToast } from "@/hooks/use-toast"
-import { formatDistanceToNow, formatTime } from "@/mvc/controllers/date-utils"
+import { formatDistanceToNow, formatTime } from "@/controllers/date-utils"
 
 export default function RoomDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)

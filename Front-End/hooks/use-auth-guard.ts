@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getCurrentSession } from "@/mvc/controllers/auth-controller"
-import { supabase } from "@/mvc/models/supabase-client"
+import { getCurrentSession } from "@/controllers/auth-controller"
 
 export function useAuthGuard() {
   const [isAuthReady, setIsAuthReady] = useState(false)
@@ -30,15 +29,8 @@ export function useAuthGuard() {
 
     void verifySession()
 
-    const { data: authSubscription } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_OUT" || !session) {
-        router.replace("/auth")
-      }
-    })
-
     return () => {
       isMounted = false
-      authSubscription.subscription.unsubscribe()
     }
   }, [router])
 

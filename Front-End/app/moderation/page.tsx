@@ -37,10 +37,10 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 import { useToast } from "@/hooks/use-toast"
-import { formatDistanceToNow } from "@/mvc/controllers/date-utils"
-import type { ReportStatus } from "@/mvc/models/types"
+import { formatDistanceToNow } from "@/controllers/date-utils"
+import type { ReportStatus } from "@/utils/types"
 
 export default function ModerationPage() {
   const { 

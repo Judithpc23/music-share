@@ -10,7 +10,7 @@ export class LookupsController {
     return this.lookupsService.getGenreById(id)
   }
 
-  @Get('generators/:id')
+  @Get('artists/:id')
   async getArtistById(@Param('id') id: string) {
     return this.lookupsService.getArtistById(id)
   }

@@ -5,9 +5,29 @@ import { RoomsService } from './rooms.service'
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
+  @Get()
+  async getAllRooms() {
+    return this.roomsService.getAllRooms()
+  }
+
   @Get('active')
   async getActiveRooms() {
     return this.roomsService.getActiveRooms()
+  }
+
+  @Get('members')
+  async getAllRoomMembers() {
+    return this.roomsService.getAllRoomMembers()
+  }
+
+  @Get('playbacks')
+  async getAllPlaybackStates() {
+    return this.roomsService.getAllPlaybackStates()
+  }
+
+  @Get('activities')
+  async getAllRoomActivities() {
+    return this.roomsService.getAllRoomActivities()
   }
 
   @Get(':roomId')
@@ -33,28 +53,41 @@ export class RoomsController {
   @Post('create')
   async createRoom(
     @Body() body: {
+      roomId?: string
+      activityId?: string
+      now?: string
       userId: string
       name: string
       songId: string
     }
   ) {
-    return this.roomsService.createRoom(body.userId, body.name, body.songId)
+    return this.roomsService.createRoom(body.userId, body.name, body.songId, {
+      roomId: body.roomId,
+      activityId: body.activityId,
+      now: body.now,
+    })
   }
 
   @Post(':roomId/join')
   async joinRoom(
     @Param('roomId') roomId: string,
-    @Body() body: { userId: string }
+    @Body() body: { userId: string; activityId?: string; now?: string }
   ) {
-    return this.roomsService.joinRoom(roomId, body.userId)
+    return this.roomsService.joinRoom(roomId, body.userId, {
+      activityId: body.activityId,
+      now: body.now,
+    })
   }
 
   @Post(':roomId/leave')
   async leaveRoom(
     @Param('roomId') roomId: string,
-    @Body() body: { userId: string }
+    @Body() body: { userId: string; activityId?: string; now?: string }
   ) {
-    return this.roomsService.leaveRoom(roomId, body.userId)
+    return this.roomsService.leaveRoom(roomId, body.userId, {
+      activityId: body.activityId,
+      now: body.now,
+    })
   }
 
   @Put(':roomId/end')
@@ -81,16 +114,19 @@ export class RoomsController {
   async addRoomActivity(
     @Param('roomId') roomId: string,
     @Body() body: {
+      activityId?: string
       userId: string
       action: 'joined' | 'left' | 'played' | 'paused' | 'seeked'
       details?: string
+      timestamp?: string
     }
   ) {
     return this.roomsService.addRoomActivity(
       roomId,
       body.userId,
       body.action,
-      body.details
+      body.details,
+      { activityId: body.activityId, timestamp: body.timestamp }
     )
   }
 

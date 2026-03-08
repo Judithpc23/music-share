@@ -11,15 +11,9 @@ import type {
   ReportStatus,
   Share,
   ShareVisibility,
-} from "@/mvc/models/types"
-import { supabase } from "@/mvc/models/supabase-client"
-import {
-  toDbComment,
-  toDbReaction,
-  toDbReport,
-  toDbShare,
-} from "@/mvc/models/supabase-mappers"
-import { buildId, logSupabaseError } from "@/mvc/controllers/app-controller/shared"
+} from "@/utils/types"
+import { backendController } from "@/controllers/backend-controller"
+import { buildId } from "@/controllers/app-controller-shared"
 
 type UseEngagementParams = {
   state: AppState
@@ -67,11 +61,15 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
 
       setState((previous) => ({ ...previous, reactions: [...previous.reactions, newReaction] }))
 
-      void supabase
-        .from("reactions")
-        .insert(toDbReaction(newReaction))
-        .then(({ error }) => {
-          if (error) logSupabaseError("insert reaction failed", error)
+      void backendController
+        .addReaction(newReaction)
+        .then((result) => {
+          if (!result.success) {
+            console.error("[api] insert reaction failed")
+          }
+        })
+        .catch((error) => {
+          console.error("[api] insert reaction failed", error)
         })
 
       return true
@@ -85,12 +83,15 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       reactions: previous.reactions.filter((item) => item.id !== reactionId),
     }))
 
-    void supabase
-      .from("reactions")
-      .delete()
-      .eq("id", reactionId)
-      .then(({ error }) => {
-        if (error) logSupabaseError("delete reaction failed", error)
+    void backendController
+      .removeReaction(reactionId)
+      .then((result) => {
+        if (!result.success) {
+          console.error("[api] delete reaction failed")
+        }
+      })
+      .catch((error) => {
+        console.error("[api] delete reaction failed", error)
       })
   }, [setState])
 
@@ -114,11 +115,21 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       }
       setState((previous) => ({ ...previous, comments: [...previous.comments, newComment] }))
 
-      void supabase
-        .from("comments")
-        .insert(toDbComment(newComment))
-        .then(({ error }) => {
-          if (error) logSupabaseError("insert comment failed", error)
+      void backendController
+        .addComment({
+          id: newComment.id,
+          userId: newComment.userId,
+          songId: newComment.songId,
+          content: newComment.content,
+          createdAt: newComment.createdAt,
+        })
+        .then((result) => {
+          if (!result.success) {
+            console.error("[api] insert comment failed")
+          }
+        })
+        .catch((error) => {
+          console.error("[api] insert comment failed", error)
         })
     },
     [state.currentUserId, setState]
@@ -130,12 +141,15 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       comments: previous.comments.map((item) => (item.id === commentId ? { ...item, status } : item)),
     }))
 
-    void supabase
-      .from("comments")
-      .update({ status })
-      .eq("id", commentId)
-      .then(({ error }) => {
-        if (error) logSupabaseError("update comment status failed", error)
+    void backendController
+      .updateCommentStatus(commentId, status)
+      .then((result) => {
+        if (!result.success) {
+          console.error("[api] update comment status failed")
+        }
+      })
+      .catch((error) => {
+        console.error("[api] update comment status failed", error)
       })
   }, [setState])
 
@@ -165,11 +179,15 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       }
       setState((previous) => ({ ...previous, shares: [...previous.shares, newShare] }))
 
-      void supabase
-        .from("shares")
-        .insert(toDbShare(newShare))
-        .then(({ error }) => {
-          if (error) logSupabaseError("insert share failed", error)
+      void backendController
+        .addShare(newShare)
+        .then((result) => {
+          if (!result.success) {
+            console.error("[api] insert share failed")
+          }
+        })
+        .catch((error) => {
+          console.error("[api] insert share failed", error)
         })
     },
     [state.currentUserId, setState]
@@ -181,12 +199,15 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       shares: previous.shares.map((item) => (item.id === shareId ? { ...item, status } : item)),
     }))
 
-    void supabase
-      .from("shares")
-      .update({ status })
-      .eq("id", shareId)
-      .then(({ error }) => {
-        if (error) logSupabaseError("update share status failed", error)
+    void backendController
+      .updateShareStatus(shareId, status)
+      .then((result) => {
+        if (!result.success) {
+          console.error("[api] update share status failed")
+        }
+      })
+      .catch((error) => {
+        console.error("[api] update share status failed", error)
       })
   }, [setState])
 
@@ -203,11 +224,22 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       }
       setState((previous) => ({ ...previous, reports: [...previous.reports, newReport] }))
 
-      void supabase
-        .from("reports")
-        .insert(toDbReport(newReport))
-        .then(({ error }) => {
-          if (error) logSupabaseError("insert report failed", error)
+      void backendController
+        .addReport({
+          id: newReport.id,
+          targetType: newReport.targetType,
+          targetId: newReport.targetId,
+          userId: newReport.userId,
+          reason: newReport.reason,
+          createdAt: newReport.createdAt,
+        })
+        .then((result) => {
+          if (!result.success) {
+            console.error("[api] insert report failed")
+          }
+        })
+        .catch((error) => {
+          console.error("[api] insert report failed", error)
         })
     },
     [state.currentUserId, setState]
@@ -219,12 +251,15 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       reports: previous.reports.map((item) => (item.id === reportId ? { ...item, status } : item)),
     }))
 
-    void supabase
-      .from("reports")
-      .update({ status })
-      .eq("id", reportId)
-      .then(({ error }) => {
-        if (error) logSupabaseError("update report status failed", error)
+    void backendController
+      .updateReportStatus(reportId, status)
+      .then((result) => {
+        if (!result.success) {
+          console.error("[api] update report status failed")
+        }
+      })
+      .catch((error) => {
+        console.error("[api] update report status failed", error)
       })
   }, [setState])
 

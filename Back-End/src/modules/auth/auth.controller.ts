@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common'
+import { Controller, Post, Body, Get, Headers } from '@nestjs/common'
 import { AuthService } from './auth.service'
 
 @Controller('auth')
@@ -40,13 +40,15 @@ export class AuthController {
   }
 
   @Get('session')
-  async getSession() {
-    return this.authService.getCurrentSession()
+  async getSession(@Headers('authorization') authorization?: string) {
+    const accessToken = (authorization?.replace(/^Bearer\s+/i, '') ?? '').trim() || undefined
+    return this.authService.getCurrentSession(accessToken)
   }
 
   @Get('user')
-  async getCurrentUser() {
-    return this.authService.getCurrentUser()
+  async getCurrentUser(@Headers('authorization') authorization?: string) {
+    const accessToken = (authorization?.replace(/^Bearer\s+/i, '') ?? '').trim() || undefined
+    return this.authService.getCurrentUser(accessToken)
   }
 
   @Get('catalogs')

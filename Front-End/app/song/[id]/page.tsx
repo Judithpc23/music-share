@@ -34,10 +34,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 import { useToast } from "@/hooks/use-toast"
-import { formatDistanceToNow, formatTime } from "@/mvc/controllers/date-utils"
-import type { ShareVisibility } from "@/mvc/models/types"
+import { formatDistanceToNow, formatTime } from "@/controllers/date-utils"
+import type { ShareVisibility } from "@/utils/types"
 
 export default function SongDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)

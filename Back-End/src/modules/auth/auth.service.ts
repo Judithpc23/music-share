@@ -25,23 +25,61 @@ type AuthCatalogs = {
 
 @Injectable()
 export class AuthService {
-  async getCurrentSession() {
-    return supabase.auth.getSession()
+  async getCurrentSession(accessToken?: string) {
+    if (!accessToken) {
+      return { data: { session: null }, error: null }
+    }
+
+    const { data, error } = await supabase.auth.getUser(accessToken)
+    if (error || !data.user) {
+      return { data: { session: null }, error: error?.message ?? 'Invalid session' }
+    }
+
+    return {
+      data: {
+        session: {
+          access_token: accessToken,
+          user: data.user,
+        },
+      },
+      error: null,
+    }
   }
 
-  async getCurrentUser() {
-    return supabase.auth.getUser()
+  async getCurrentUser(accessToken?: string) {
+    if (!accessToken) {
+      return { data: { user: null }, error: null }
+    }
+
+    const { data, error } = await supabase.auth.getUser(accessToken)
+    if (error) {
+      return { data: { user: null }, error: error.message }
+    }
+
+    return { data, error: null }
   }
 
   async signOutUser() {
-    return supabase.auth.signOut()
+    return { error: null }
   }
 
   async signInWithEmailPassword(email: string, password: string) {
-    return supabase.auth.signInWithPassword({
+    const result = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password,
     })
+
+    if (result.error) {
+      return { data: null, error: result.error.message }
+    }
+
+    return {
+      data: {
+        session: result.data.session,
+        user: result.data.user,
+      },
+      error: null,
+    }
   }
 
   async loadAuthCatalogs(): Promise<{ data: AuthCatalogs; error: string | null }> {
