@@ -1,9 +1,30 @@
 import type { AppState, ContentStatus, PlaybackState, Reaction, RoomActivity, Share, ShareVisibility } from "@/utils/types"
 import { apiClient } from "@/controllers/api-client"
 
+export type BootstrapPayload = Pick<
+  AppState,
+  "users" | "genres" | "artists" | "songs" | "currentUserId" | "currentRole"
+>
+
 export const backendController = {
   loadBootstrapState() {
-    return apiClient.get<AppState>("/bootstrap")
+    return apiClient.get<BootstrapPayload>("/bootstrap")
+  },
+
+  getAllRooms() {
+    return apiClient.get<AppState["listeningRooms"]>("/rooms")
+  },
+
+  getAllRoomMembers() {
+    return apiClient.get<AppState["roomMembers"]>("/rooms/members")
+  },
+
+  getAllPlaybackStates() {
+    return apiClient.get<AppState["playbackStates"]>("/rooms/playbacks")
+  },
+
+  getAllRoomActivities() {
+    return apiClient.get<AppState["roomActivities"]>("/rooms/activities")
   },
 
   createRoom(input: {
@@ -86,6 +107,22 @@ export const backendController = {
 
   updateReportStatus(reportId: string, status: "pending" | "resolved") {
     return apiClient.put<{ success: boolean }>(`/engagement/reports/${reportId}/status`, { status })
+  },
+
+  getAllShares() {
+    return apiClient.get<AppState["shares"]>("/engagement/shares")
+  },
+
+  getAllReactions() {
+    return apiClient.get<AppState["reactions"]>("/engagement/reactions")
+  },
+
+  getAllComments() {
+    return apiClient.get<AppState["comments"]>("/engagement/comments")
+  },
+
+  getAllReports() {
+    return apiClient.get<AppState["reports"]>("/engagement/reports")
   },
 
   simulateLostRecord(commentId: string) {

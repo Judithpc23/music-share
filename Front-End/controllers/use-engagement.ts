@@ -1,5 +1,6 @@
-import { useCallback } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import type { Dispatch, SetStateAction } from "react"
+import { usePathname } from "next/navigation"
 import type {
   AppState,
   Comment,
@@ -21,6 +22,52 @@ type UseEngagementParams = {
 }
 
 export function useEngagement({ state, setState }: UseEngagementParams) {
+  const pathname = usePathname()
+  const hasLoadedFeedEngagementRef = useRef(false)
+  const hasLoadedReportsRef = useRef(false)
+
+  useEffect(() => {
+    const requiresFeedEngagement =
+      pathname === "/" ||
+      pathname.startsWith("/song/") ||
+      pathname.startsWith("/profile") ||
+      pathname.startsWith("/moderation")
+
+    if (!requiresFeedEngagement || hasLoadedFeedEngagementRef.current) return
+
+    hasLoadedFeedEngagementRef.current = true
+    void Promise.all([
+      backendController.getAllShares(),
+      backendController.getAllReactions(),
+      backendController.getAllComments(),
+    ])
+      .then(([shares, reactions, comments]) => {
+        setState((previous) => ({
+          ...previous,
+          shares,
+          reactions,
+          comments,
+        }))
+      })
+      .catch((error) => {
+        console.error("[api] failed to load engagement data", error)
+      })
+  }, [pathname, setState])
+
+  useEffect(() => {
+    if (!pathname.startsWith("/moderation") || hasLoadedReportsRef.current) return
+    hasLoadedReportsRef.current = true
+
+    void backendController
+      .getAllReports()
+      .then((reports) => {
+        setState((previous) => ({ ...previous, reports }))
+      })
+      .catch((error) => {
+        console.error("[api] failed to load reports data", error)
+      })
+  }, [pathname, setState])
+
   const getReactionsForTarget = useCallback(
     (targetType: ReactionTargetType, targetId: string) =>
       state.reactions.filter((item) => item.targetType === targetType && item.targetId === targetId),

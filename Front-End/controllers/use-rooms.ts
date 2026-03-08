@@ -1,5 +1,6 @@
-import { useCallback } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import type { Dispatch, SetStateAction } from "react"
+import { usePathname } from "next/navigation"
 import type {
   AppState,
   ListeningRoom,
@@ -16,6 +17,35 @@ type UseRoomsParams = {
 }
 
 export function useRooms({ state, setState }: UseRoomsParams) {
+  const pathname = usePathname()
+  const hasLoadedRoomsRef = useRef(false)
+
+  useEffect(() => {
+    const requiresRoomsData =
+      pathname === "/" || pathname.startsWith("/rooms") || pathname.startsWith("/song/")
+    if (!requiresRoomsData || hasLoadedRoomsRef.current) return
+
+    hasLoadedRoomsRef.current = true
+    void Promise.all([
+      backendController.getAllRooms(),
+      backendController.getAllRoomMembers(),
+      backendController.getAllPlaybackStates(),
+      backendController.getAllRoomActivities(),
+    ])
+      .then(([listeningRooms, roomMembers, playbackStates, roomActivities]) => {
+        setState((previous) => ({
+          ...previous,
+          listeningRooms,
+          roomMembers,
+          playbackStates,
+          roomActivities,
+        }))
+      })
+      .catch((error) => {
+        console.error("[api] failed to load rooms data", error)
+      })
+  }, [pathname, setState])
+
   const getActiveRooms = useCallback(
     () => state.listeningRooms.filter((item) => item.status === "active"),
     [state.listeningRooms]
