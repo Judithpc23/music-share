@@ -353,17 +353,21 @@ export default function AuthPage() {
               {registerStep === "step-3" ? (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Select one or more favorite genres</Label>
+                    <Label>Favorite genres (select at least one)</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-md border p-3 max-h-48 overflow-auto">
-                      {genres.map((genre) => (
-                        <label key={genre.id} className="flex items-center gap-2 text-sm">
-                          <Checkbox
-                            checked={registerFavoriteGenres.includes(genre.id)}
-                            onCheckedChange={() => toggleGenre(genre.id)}
-                          />
-                          <span>{genre.name}</span>
-                        </label>
-                      ))}
+                      {!genres || genres.length === 0 ? (
+                        <p className="text-sm text-muted-foreground col-span-2">Loading genres...</p>
+                      ) : (
+                        genres.map((genre) => (
+                          <label key={genre.id} className="flex items-center gap-2 text-sm">
+                            <Checkbox
+                              checked={registerFavoriteGenres.includes(genre.id)}
+                              onCheckedChange={() => toggleGenre(genre.id)}
+                            />
+                            <span>{genre.name}</span>
+                          </label>
+                        ))
+                      )}
                     </div>
                     {registerFavoriteGenres.length === 0 ? (
                       <p className="text-xs text-destructive">
@@ -382,7 +386,7 @@ export default function AuthPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__none">None</SelectItem>
-                        {songs.map((song) => (
+                        {songs?.map((song) => (
                           <SelectItem key={song.id} value={song.id}>
                             {song.title}
                           </SelectItem>
