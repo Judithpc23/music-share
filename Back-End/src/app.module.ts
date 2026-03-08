@@ -7,6 +7,9 @@ import { RoomsModule } from './modules/rooms/rooms.module'
 import { LookupsModule } from './modules/lookups/lookups.module'
 import { CatalogModule } from './modules/catalog/catalog.module'
 import { BootstrapModule } from './modules/bootstrap/bootstrap.module'
+import { SpotifyModule } from './modules/spotify/spotify.module'
+import { DeezerModule } from './modules/deezer/deezer.module'
+import { MusicModule } from './modules/music/music.module'
 
 @Module({
   imports: [
@@ -16,6 +19,9 @@ import { BootstrapModule } from './modules/bootstrap/bootstrap.module'
     LookupsModule,
     CatalogModule,
     BootstrapModule,
+    SpotifyModule,
+    DeezerModule,
+    MusicModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { Search, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -12,12 +13,15 @@ import {
 } from "@/components/ui/select"
 import { SongCard } from "@/components/song-card"
 import { useApp } from "@/controllers/store"
+import { musicController, type ExternalTrack } from "@/controllers/music-controller"
 
 export default function ExplorePage() {
   const { songs, artists, genres: appGenres } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [genreFilter, setGenreFilter] = useState("all")
   const [artistFilter, setArtistFilter] = useState("all")
+  const [externalTracks, setExternalTracks] = useState<ExternalTrack[]>([])
+  const [isExternalLoading, setIsExternalLoading] = useState(false)
 
   // Get unique genres
   const genreOptions = useMemo(() => {
@@ -42,6 +46,24 @@ export default function ExplorePage() {
     })
   }, [songs, artists, appGenres, searchQuery, genreFilter, artistFilter])
 
+  const handleExternalSearch = async () => {
+    if (!searchQuery.trim()) {
+      setExternalTracks([])
+      return
+    }
+
+    setIsExternalLoading(true)
+    try {
+      const results = await musicController.searchTracks(searchQuery, 12)
+      setExternalTracks(results)
+    } catch (error) {
+      console.error("[music api] failed to search tracks", error)
+      setExternalTracks([])
+    } finally {
+      setIsExternalLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -63,6 +85,9 @@ export default function ExplorePage() {
           />
         </div>
         <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={handleExternalSearch} disabled={isExternalLoading}>
+            {isExternalLoading ? "Searching APIs..." : "Search Spotify + Deezer"}
+          </Button>
           <Select value={genreFilter} onValueChange={setGenreFilter}>
             <SelectTrigger className="w-[150px]">
               <Filter className="h-4 w-4 mr-2" />
@@ -106,6 +131,51 @@ export default function ExplorePage() {
           No songs found matching your criteria.
         </div>
       )}
+
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold">External results (Spotify metadata + Deezer preview)</h2>
+        {externalTracks.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {externalTracks.map((track) => (
+              <article key={track.id} className="border rounded-lg p-3 space-y-3">
+                <div className="flex gap-3">
+                  <img
+                    src={track.imageUrl || "/placeholder.svg?height=96&width=96"}
+                    alt={track.name}
+                    className="h-20 w-20 rounded-md object-cover bg-muted"
+                  />
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{track.name}</p>
+                    <p className="text-sm text-muted-foreground truncate">{track.artist}</p>
+                    <p className="text-xs text-muted-foreground truncate">{track.album}</p>
+                  </div>
+                </div>
+
+                {track.previewUrl ? (
+                  <audio controls className="w-full" src={track.previewUrl}>
+                    Your browser does not support audio playback.
+                  </audio>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No preview available for this track.</p>
+                )}
+
+                <a
+                  href={track.spotifyUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-primary underline"
+                >
+                  Open in Spotify
+                </a>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Use “Search Spotify + Deezer” to fetch online tracks with playable previews.
+          </p>
+        )}
+      </div>
     </div>
   )
 }
