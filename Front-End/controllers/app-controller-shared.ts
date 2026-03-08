@@ -1,4 +1,4 @@
-import type { AppState } from "@/mvc/models/types"
+import type { AppState } from "@/utils/types"
 
 export const initialState: AppState = {
   users: [],
@@ -22,9 +22,5 @@ export const buildId = (prefix: string) => {
     return `${prefix}-${crypto.randomUUID()}`
   }
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`
-}
-
-export const logSupabaseError = (context: string, error: unknown) => {
-  console.error(`[supabase] ${context}`, error)
 }
 

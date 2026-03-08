@@ -1,20 +1,15 @@
-import { useCallback } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import type { Dispatch, SetStateAction } from "react"
+import { usePathname } from "next/navigation"
 import type {
   AppState,
   ListeningRoom,
   PlaybackState,
   RoomActivity,
   RoomMember,
-} from "@/mvc/models/types"
-import { supabase } from "@/mvc/models/supabase-client"
-import {
-  toDbListeningRoom,
-  toDbPlaybackState,
-  toDbRoomActivity,
-  toDbRoomMember,
-} from "@/mvc/models/supabase-mappers"
-import { buildId, logSupabaseError } from "@/mvc/controllers/app-controller/shared"
+} from "@/utils/types"
+import { backendController } from "@/controllers/backend-controller"
+import { buildId } from "@/controllers/app-controller-shared"
 
 type UseRoomsParams = {
   state: AppState
@@ -22,6 +17,35 @@ type UseRoomsParams = {
 }
 
 export function useRooms({ state, setState }: UseRoomsParams) {
+  const pathname = usePathname()
+  const hasLoadedRoomsRef = useRef(false)
+
+  useEffect(() => {
+    const requiresRoomsData =
+      pathname === "/" || pathname.startsWith("/rooms") || pathname.startsWith("/song/")
+    if (!requiresRoomsData || hasLoadedRoomsRef.current) return
+
+    hasLoadedRoomsRef.current = true
+    void Promise.all([
+      backendController.getAllRooms(),
+      backendController.getAllRoomMembers(),
+      backendController.getAllPlaybackStates(),
+      backendController.getAllRoomActivities(),
+    ])
+      .then(([listeningRooms, roomMembers, playbackStates, roomActivities]) => {
+        setState((previous) => ({
+          ...previous,
+          listeningRooms,
+          roomMembers,
+          playbackStates,
+          roomActivities,
+        }))
+      })
+      .catch((error) => {
+        console.error("[api] failed to load rooms data", error)
+      })
+  }, [pathname, setState])
+
   const getActiveRooms = useCallback(
     () => state.listeningRooms.filter((item) => item.status === "active"),
     [state.listeningRooms]
@@ -89,21 +113,21 @@ export function useRooms({ state, setState }: UseRoomsParams) {
       }))
 
       void (async () => {
-        const roomInsert = await supabase.from("listening_rooms").insert(toDbListeningRoom(newRoom))
-        if (roomInsert.error) {
-          logSupabaseError("insert listening room failed", roomInsert.error)
-          return
+        try {
+          const result = await backendController.createRoom({
+            userId: state.currentUserId,
+            name,
+            songId,
+            roomId,
+            activityId: newActivity.id,
+            now,
+          })
+          if (!result.success) {
+            console.error("[api] create room failed")
+          }
+        } catch (error) {
+          console.error("[api] create room failed", error)
         }
-
-        const [memberResult, playbackResult, activityResult] = await Promise.all([
-          supabase.from("room_members").insert(toDbRoomMember(newMember)),
-          supabase.from("playback_states").insert(toDbPlaybackState(newPlayback)),
-          supabase.from("room_activities").insert(toDbRoomActivity(newActivity)),
-        ])
-
-        if (memberResult.error) logSupabaseError("insert room member failed", memberResult.error)
-        if (playbackResult.error) logSupabaseError("insert playback state failed", playbackResult.error)
-        if (activityResult.error) logSupabaseError("insert room activity failed", activityResult.error)
       })()
 
       return roomId
@@ -139,13 +163,20 @@ export function useRooms({ state, setState }: UseRoomsParams) {
         roomActivities: [...previous.roomActivities, newActivity],
       }))
 
-      void Promise.all([
-        supabase.from("room_members").insert(toDbRoomMember(newMember)),
-        supabase.from("room_activities").insert(toDbRoomActivity(newActivity)),
-      ]).then(([memberResult, activityResult]) => {
-        if (memberResult.error) logSupabaseError("join room failed", memberResult.error)
-        if (activityResult.error) logSupabaseError("join room activity failed", activityResult.error)
-      })
+      void backendController
+        .joinRoom(roomId, {
+          userId: state.currentUserId,
+          activityId: newActivity.id,
+          now,
+        })
+        .then((result) => {
+          if (!result.success) {
+            console.error("[api] join room failed")
+          }
+        })
+        .catch((error) => {
+          console.error("[api] join room failed", error)
+        })
     },
     [state.roomMembers, state.currentUserId, setState]
   )
@@ -168,17 +199,20 @@ export function useRooms({ state, setState }: UseRoomsParams) {
         roomActivities: [...previous.roomActivities, newActivity],
       }))
 
-      void Promise.all([
-        supabase
-          .from("room_members")
-          .delete()
-          .eq("room_id", roomId)
-          .eq("user_id", state.currentUserId),
-        supabase.from("room_activities").insert(toDbRoomActivity(newActivity)),
-      ]).then(([memberDelete, activityInsert]) => {
-        if (memberDelete.error) logSupabaseError("leave room failed", memberDelete.error)
-        if (activityInsert.error) logSupabaseError("leave room activity failed", activityInsert.error)
-      })
+      void backendController
+        .leaveRoom(roomId, {
+          userId: state.currentUserId,
+          activityId: newActivity.id,
+          now: newActivity.timestamp,
+        })
+        .then((result) => {
+          if (!result.success) {
+            console.error("[api] leave room failed")
+          }
+        })
+        .catch((error) => {
+          console.error("[api] leave room failed", error)
+        })
     },
     [state.currentUserId, setState]
   )
@@ -191,12 +225,15 @@ export function useRooms({ state, setState }: UseRoomsParams) {
       ),
     }))
 
-    void supabase
-      .from("listening_rooms")
-      .update({ status: "ended" })
-      .eq("id", roomId)
-      .then(({ error }) => {
-        if (error) logSupabaseError("end room failed", error)
+    void backendController
+      .endRoom(roomId)
+      .then((result) => {
+        if (!result.success) {
+          console.error("[api] end room failed")
+        }
+      })
+      .catch((error) => {
+        console.error("[api] end room failed", error)
       })
   }, [setState])
 
@@ -226,11 +263,18 @@ export function useRooms({ state, setState }: UseRoomsParams) {
       })
 
       if (latestPlayback) {
-        void supabase
-          .from("playback_states")
-          .upsert(toDbPlaybackState(latestPlayback), { onConflict: "room_id" })
-          .then(({ error }) => {
-            if (error) logSupabaseError("update playback failed", error)
+        void backendController
+          .updateRoomPlayback(roomId, {
+            userId: state.currentUserId,
+            updates,
+          })
+          .then((result) => {
+            if (!result.success) {
+              console.error("[api] update playback failed")
+            }
+          })
+          .catch((error) => {
+            console.error("[api] update playback failed", error)
           })
       }
     },
@@ -252,11 +296,21 @@ export function useRooms({ state, setState }: UseRoomsParams) {
         roomActivities: [...previous.roomActivities, newActivity],
       }))
 
-      void supabase
-        .from("room_activities")
-        .insert(toDbRoomActivity(newActivity))
-        .then(({ error }) => {
-          if (error) logSupabaseError("insert room activity failed", error)
+      void backendController
+        .addRoomActivity(roomId, {
+          userId: state.currentUserId,
+          action,
+          details,
+          activityId: newActivity.id,
+          timestamp: newActivity.timestamp,
+        })
+        .then((result) => {
+          if (!result.success) {
+            console.error("[api] add room activity failed")
+          }
+        })
+        .catch((error) => {
+          console.error("[api] add room activity failed", error)
         })
     },
     [state.currentUserId, setState]

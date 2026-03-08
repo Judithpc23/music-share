@@ -20,7 +20,7 @@ import type {
   ContentStatus,
   ReportStatus,
   Artist,
-} from "@/mvc/models/types"
+} from "@/utils/types"
 
 export interface AppControllerValue extends AppState {
   setCurrentUser: (userId: string) => void

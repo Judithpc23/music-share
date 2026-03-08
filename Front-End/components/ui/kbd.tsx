@@ -1,4 +1,4 @@
-import { cn } from '@/mvc/controllers/utils'
+import { cn } from '@/utils/cn'
 
 function Kbd({ className, ...props }: React.ComponentProps<'kbd'>) {
   return (

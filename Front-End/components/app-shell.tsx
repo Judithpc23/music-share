@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, type ReactNode } from "react"
-import { AppProvider } from "@/mvc/controllers/store"
+import { AppProvider } from "@/controllers/store"
 import { AppHeader } from "@/components/app-header"
 import { AppSidebar } from "@/components/app-sidebar"
 import { MobileMenu } from "@/components/mobile-menu"

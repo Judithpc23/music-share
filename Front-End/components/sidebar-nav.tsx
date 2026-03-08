@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Compass, Radio, User, Shield } from "lucide-react"
-import { cn } from "@/mvc/controllers/utils"
-import { useApp } from "@/mvc/controllers/store"
+import { cn } from "@/utils/cn"
+import { useApp } from "@/controllers/store"
 import {
   Tooltip,
   TooltipContent,

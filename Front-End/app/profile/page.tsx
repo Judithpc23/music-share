@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { ShareCard } from "@/components/share-card"
-import { useApp } from "@/mvc/controllers/store"
-import { formatDistanceToNow } from "@/mvc/controllers/date-utils"
+import { useApp } from "@/controllers/store"
+import { formatDistanceToNow } from "@/controllers/date-utils"
 
 export default function ProfilePage() {
   const router = useRouter()

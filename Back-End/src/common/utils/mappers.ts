@@ -11,17 +11,17 @@ import type {
   RoomMember,
   PlaybackState,
   RoomActivity,
-} from "@/mvc/models/types"
+} from '../types'
 
 export type DbUser = {
   id: string
   username: string
   email: string
-  role: User["role"]
+  role: User['role']
   bio: string | null
   first_name: string | null
   last_name: string | null
-  privacity: User["privacity"] | null
+  privacity: User['privacity'] | null
   img: string | null
   fav_genres: string | null
   fav_song: string | null
@@ -57,17 +57,17 @@ export type DbShare = {
   user_id: string
   song_id: string
   caption_text: string
-  visibility: Share["visibility"]
+  visibility: Share['visibility']
   created_at: string
-  status: Share["status"]
+  status: Share['status']
 }
 
 export type DbReaction = {
   id: string
-  target_type: Reaction["targetType"]
+  target_type: Reaction['targetType']
   target_id: string
   user_id: string
-  type: Reaction["type"]
+  type: Reaction['type']
   created_at: string
 }
 
@@ -77,17 +77,17 @@ export type DbComment = {
   user_id: string
   content: string
   created_at: string
-  status: Comment["status"]
+  status: Comment['status']
 }
 
 export type DbReport = {
   id: string
-  target_type: Report["targetType"]
+  target_type: Report['targetType']
   target_id: string
   user_id: string
   reason: string
   created_at: string
-  status: Report["status"]
+  status: Report['status']
 }
 
 export type DbListeningRoom = {
@@ -95,7 +95,7 @@ export type DbListeningRoom = {
   name: string
   host_user_id: string
   current_song_id: string
-  status: ListeningRoom["status"]
+  status: ListeningRoom['status']
   created_at: string
 }
 
@@ -119,7 +119,7 @@ export type DbRoomActivity = {
   id: string
   room_id: string
   user_id: string
-  action: RoomActivity["action"]
+  action: RoomActivity['action']
   timestamp: string
   details: string | null
 }
@@ -129,14 +129,14 @@ export const fromDbUser = (row: DbUser): User => ({
   username: row.username,
   email: row.email,
   role: row.role,
-  bio: row.bio ?? "",
-  firstName: row.first_name ?? "",
-  lastName: row.last_name ?? "",
-  privacity: row.privacity ?? "public",
+  bio: row.bio ?? '',
+  firstName: row.first_name ?? '',
+  lastName: row.last_name ?? '',
+  privacity: row.privacity ?? 'public',
   img: row.img ?? undefined,
   favGenres: row.fav_genres ?? undefined,
   favSong: row.fav_song ?? undefined,
-  mood: row.mood ?? "",
+  mood: row.mood ?? '',
 })
 
 export const toDbUser = (user: User): DbUser => ({
@@ -173,7 +173,8 @@ export const fromDbSong = (row: DbSong): Song => ({
   artistId: row.artist_id,
   genreId: row.genre_id,
   provider: row.provider,
-  coverImageUrl: row.cover_image_url ?? "/placeholder.svg?height=300&width=300",
+  coverImageUrl:
+    row.cover_image_url ?? '/placeholder.svg?height=300&width=300',
   createdAt: row.created_at,
   duration: row.duration,
 })
@@ -263,7 +264,9 @@ export const fromDbListeningRoom = (row: DbListeningRoom): ListeningRoom => ({
   createdAt: row.created_at,
 })
 
-export const toDbListeningRoom = (room: ListeningRoom): DbListeningRoom => ({
+export const toDbListeningRoom = (
+  room: ListeningRoom
+): DbListeningRoom => ({
   id: room.id,
   name: room.name,
   host_user_id: room.hostUserId,
@@ -286,7 +289,9 @@ export const toDbRoomMember = (member: RoomMember): DbRoomMember => ({
   is_host: member.isHost,
 })
 
-export const fromDbPlaybackState = (row: DbPlaybackState): PlaybackState => ({
+export const fromDbPlaybackState = (
+  row: DbPlaybackState
+): PlaybackState => ({
   roomId: row.room_id,
   currentSongId: row.current_song_id,
   isPlaying: row.is_playing,

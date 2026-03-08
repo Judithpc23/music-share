@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { SongCard } from "@/components/song-card"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 
 export default function ExplorePage() {
   const { songs, artists, genres: appGenres } = useApp()

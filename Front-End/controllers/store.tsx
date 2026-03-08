@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, type ReactNode } from "react"
-import { useAppController, type AppControllerValue } from "@/mvc/controllers/use-app-controller"
+import { useAppController, type AppControllerValue } from "@/controllers/use-app-controller"
 
 const AppContext = createContext<AppControllerValue | null>(null)
 

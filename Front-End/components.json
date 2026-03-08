@@ -12,9 +12,9 @@
   },
   "aliases": {
     "components": "@/components",
-    "utils": "@/mvc/controllers/utils",
+    "utils": "@/utils/cn",
     "ui": "@/components/ui",
-    "lib": "@/mvc/models",
+    "lib": "@/utils",
     "hooks": "@/hooks"
   },
   "iconLibrary": "lucide"

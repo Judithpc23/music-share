@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 import type { Dispatch, SetStateAction } from "react"
-import type { AppState, Role } from "@/mvc/models/types"
+import type { AppState, Role } from "@/utils/types"
 
 type UseLookupsParams = {
   state: AppState

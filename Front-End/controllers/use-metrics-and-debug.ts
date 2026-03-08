@@ -1,8 +1,7 @@
 import { useCallback } from "react"
 import type { Dispatch, SetStateAction } from "react"
-import type { AppState } from "@/mvc/models/types"
-import { supabase } from "@/mvc/models/supabase-client"
-import { logSupabaseError } from "@/mvc/controllers/app-controller/shared"
+import type { AppState } from "@/utils/types"
+import { backendController } from "@/controllers/backend-controller"
 
 type UseMetricsAndDebugParams = {
   state: AppState
@@ -38,12 +37,15 @@ export function useMetricsAndDebug({ state, setState }: UseMetricsAndDebugParams
       comments: previous.comments.filter((item) => item.id !== randomComment.id),
     }))
 
-    void supabase
-      .from("comments")
-      .delete()
-      .eq("id", randomComment.id)
-      .then(({ error }) => {
-        if (error) logSupabaseError("simulateLostRecord delete failed", error)
+    void backendController
+      .simulateLostRecord(randomComment.id)
+      .then((result) => {
+        if (!result.success) {
+          console.error("[api] simulateLostRecord failed")
+        }
+      })
+      .catch((error) => {
+        console.error("[api] simulateLostRecord failed", error)
       })
 
     return randomComment.id

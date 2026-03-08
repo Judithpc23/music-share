@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Heart, MessageCircle, Share2, BadgeCheck } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useApp } from "@/mvc/controllers/store"
+import { useApp } from "@/controllers/store"
 
 interface SongCardProps {
   songId: string
