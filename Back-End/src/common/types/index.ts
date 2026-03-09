@@ -58,6 +58,35 @@ export interface Share {
   status: ContentStatus
 }
 
+// Post & Mood types (Prototype Pattern)
+export type MoodType = 'nostalgia' | 'energy' | 'chill'
+
+export interface PostTemplate {
+  title: string
+  descriptionPlaceholder: string
+  emotionalContext: string
+  suggestedTags: string[]
+  defaultPrivacy: 'public' | 'friends'
+  color: string
+}
+
+export interface IPostPrototype {
+  clone(): IPostPrototype
+  getMoodType(): MoodType
+  getTemplate(): PostTemplate
+  customize(overrides: Partial<PostTemplate>): IPostPrototype
+}
+
+export interface Post {
+  id: string
+  userId: string
+  content: string
+  mood: MoodType
+  template: PostTemplate
+  createdAt: Date
+  updatedAt?: Date
+}
+
 // Reaction types
 export type ReactionTargetType = 'song' | 'share' | 'comment'
 export type ReactionType = 'like' | 'love'
