@@ -11,6 +11,8 @@ import type {
   RoomMember,
   PlaybackState,
   RoomActivity,
+  Post,
+  PostTemplate,
 } from '../types'
 
 export type DbUser = {
@@ -325,4 +327,63 @@ export const toDbRoomActivity = (activity: RoomActivity): DbRoomActivity => ({
   action: activity.action,
   timestamp: activity.timestamp,
   details: activity.details ?? null,
+})
+
+// Post & PostTemplate DB types
+export type DbPost = {
+  id: string
+  user_id: string
+  content: string
+  mood: Post['mood']
+  template: PostTemplate
+  created_at: string
+  updated_at?: string
+}
+
+export type DbPostTemplate = {
+  title: string
+  description_placeholder: string
+  emotional_context: string
+  suggested_tags: string[]
+  default_privacy: PostTemplate['defaultPrivacy']
+  color: string
+}
+
+// Post & PostTemplate mappers
+export const toDbPost = (post: Post): DbPost => ({
+  id: post.id,
+  user_id: post.userId,
+  content: post.content,
+  mood: post.mood,
+  template: toDbPostTemplate(post.template),
+  created_at: post.createdAt.toISOString(),
+  updated_at: post.updatedAt?.toISOString(),
+})
+
+export const fromDbPost = (dbPost: DbPost): Post => ({
+  id: dbPost.id,
+  userId: dbPost.user_id,
+  content: dbPost.content,
+  mood: dbPost.mood,
+  template: fromDbPostTemplate(dbPost.template),
+  createdAt: new Date(dbPost.created_at),
+  updatedAt: dbPost.updated_at ? new Date(dbPost.updated_at) : undefined,
+})
+
+export const toDbPostTemplate = (template: PostTemplate): DbPostTemplate => ({
+  title: template.title,
+  description_placeholder: template.descriptionPlaceholder,
+  emotional_context: template.emotionalContext,
+  suggested_tags: template.suggestedTags,
+  default_privacy: template.defaultPrivacy,
+  color: template.color,
+})
+
+export const fromDbPostTemplate = (dbTemplate: DbPostTemplate): PostTemplate => ({
+  title: dbTemplate.title,
+  descriptionPlaceholder: dbTemplate.description_placeholder,
+  emotionalContext: dbTemplate.emotional_context,
+  suggestedTags: dbTemplate.suggested_tags,
+  defaultPrivacy: dbTemplate.default_privacy,
+  color: dbTemplate.color,
 })

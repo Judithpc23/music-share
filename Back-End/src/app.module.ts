@@ -7,6 +7,7 @@ import { RoomsModule } from './modules/rooms/rooms.module'
 import { LookupsModule } from './modules/lookups/lookups.module'
 import { CatalogModule } from './modules/catalog/catalog.module'
 import { BootstrapModule } from './modules/bootstrap/bootstrap.module'
+import { PostsModule } from './modules/posts/posts.module'
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { BootstrapModule } from './modules/bootstrap/bootstrap.module'
     LookupsModule,
     CatalogModule,
     BootstrapModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
