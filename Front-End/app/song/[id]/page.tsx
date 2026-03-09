@@ -44,6 +44,7 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     getRoomsPlayingSong,
     addComment, 
     addReaction, 
+    removeReaction,
     addReport,
     hasUserReacted,
     createRoom,
@@ -87,6 +88,14 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
   const hasLoved = hasUserReacted("song", id, "love")
 
   const handleReaction = (type: "like" | "love") => {
+    const existingReaction = reactions.find(
+      (reaction) => reaction.userId === currentUserId && reaction.type === type
+    )
+    if (existingReaction) {
+      removeReaction(existingReaction.id)
+      return
+    }
+
     const success = addReaction("song", id, type)
     if (!success) {
       toast({
