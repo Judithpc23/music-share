@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { RootShell } from '@/components/root-shell'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -39,7 +40,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
-        <RootShell>{children}</RootShell>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <RootShell>{children}</RootShell>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

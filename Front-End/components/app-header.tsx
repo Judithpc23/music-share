@@ -2,7 +2,8 @@
 
 import { useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { Music, Menu, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { Music, Menu, LogOut, PanelLeftClose, PanelLeftOpen, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 import { useApp } from "@/controllers/store"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,7 @@ export function AppHeader({
   desktopSidebarCollapsed,
 }: AppHeaderProps) {
   const { currentUserId, currentRole, users } = useApp()
+  const { theme, setTheme } = useTheme()
   const router = useRouter()
   const currentUser = useMemo(
     () => users.find((user) => user.id === currentUserId),
@@ -77,6 +79,24 @@ export function AppHeader({
 
         {/* Session Actions */}
         <div className="flex items-center gap-2 lg:gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun className="h-4 w-4 mr-1" />
+                Light
+              </>
+            ) : (
+              <>
+                <Moon className="h-4 w-4 mr-1" />
+                Dark
+              </>
+            )}
+          </Button>
           <Button variant="outline" size="sm" className="h-8" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-1" />
             Logout
