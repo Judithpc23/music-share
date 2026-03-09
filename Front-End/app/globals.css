@@ -123,3 +123,50 @@
     @apply bg-background text-foreground;
   }
 }
+
+@property --mood-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.post-card-mood {
+  --mood-c1: #8b5cf6;
+  --mood-c2: #ec4899;
+  --mood-shadow: rgba(168, 85, 247, 0.38);
+  border: 5px solid transparent;
+  background:
+    linear-gradient(var(--color-card), var(--color-card)) padding-box,
+    conic-gradient(from var(--mood-angle), var(--mood-c1), var(--mood-c2), var(--mood-c1)) border-box;
+  animation: mood-border-spin 3s linear infinite;
+  transition: box-shadow 220ms ease;
+}
+
+.post-card-mood:hover,
+.post-card-mood:focus-within {
+  box-shadow: 0 0 0 2px var(--mood-c1), 0 16px 36px var(--mood-shadow);
+}
+
+.post-card-mood--nostalgia {
+  --mood-c1: #a855f7;
+  --mood-c2: #f472b6;
+  --mood-shadow: rgba(168, 85, 247, 0.38);
+}
+
+.post-card-mood--energy {
+  --mood-c1: #f59e0b;
+  --mood-c2: #ef4444;
+  --mood-shadow: rgba(239, 68, 68, 0.38);
+}
+
+.post-card-mood--chill {
+  --mood-c1: #22c55e;
+  --mood-c2: #06b6d4;
+  --mood-shadow: rgba(6, 182, 212, 0.38);
+}
+
+@keyframes mood-border-spin {
+  to {
+    --mood-angle: 360deg;
+  }
+}

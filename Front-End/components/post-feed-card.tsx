@@ -84,6 +84,7 @@ export function PostFeedCard({ item, onChanged }: PostFeedCardProps) {
   const hasLiked = hasUserReacted("share", post.id, "like")
   const hasLoved = hasUserReacted("share", post.id, "love")
   const commentCount = post.songId ? getCommentsForSong(post.songId).length : 0
+  const moodBorderClass = post.mood ? `post-card-mood post-card-mood--${post.mood}` : ""
 
   useEffect(() => {
     setDraft(post.content)
@@ -147,7 +148,7 @@ export function PostFeedCard({ item, onChanged }: PostFeedCardProps) {
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className={`overflow-hidden ${moodBorderClass}`}>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
