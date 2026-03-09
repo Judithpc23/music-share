@@ -48,7 +48,6 @@ export type DbSong = {
   title: string
   artist_id: string
   genre_id: string
-  provider: string
   cover_image_url: string | null
   created_at: string
   duration: number
@@ -174,7 +173,6 @@ export const fromDbSong = (row: DbSong): Song => ({
   title: row.title,
   artistId: row.artist_id,
   genreId: row.genre_id,
-  provider: row.provider,
   coverImageUrl:
     row.cover_image_url ?? '/placeholder.svg?height=300&width=300',
   createdAt: row.created_at,

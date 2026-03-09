@@ -38,7 +38,6 @@ export interface Song {
   title: string
   artistId: string
   genreId: string
-  provider: string
   coverImageUrl: string
   createdAt: string
   duration: number // in seconds

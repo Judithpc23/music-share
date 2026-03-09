@@ -38,10 +38,30 @@ export interface Song {
   title: string
   artistId: string
   genreId: string
-  provider: string
   coverImageUrl: string
   createdAt: string
   duration: number // in seconds
+}
+
+export type SongTagType = 'artist' | 'genre'
+
+export interface SongTag {
+  type: SongTagType
+  id: string
+  label: string
+}
+
+export interface SongReactionSummary {
+  likes: number
+  loves: number
+  comments: number
+  shares: number
+  totalReactions: number
+}
+
+export interface DecoratedSong extends Song {
+  tags: SongTag[]
+  reactionSummary: SongReactionSummary
 }
 
 // Share types

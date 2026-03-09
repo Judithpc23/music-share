@@ -40,19 +40,19 @@ insert into public.artists (id, name, verified) values
 on conflict (id) do nothing;
 
 -- Songs
-insert into public.songs (id, title, artist_id, genre_id, provider, cover_image_url, created_at, duration) values
-  ('song-1',  'Starlight Dreams',   'artist-1', 'genre-electronic', 'Spotify',      '/placeholder.svg?height=300&width=300', '2024-01-15T10:00:00Z', 245),
-  ('song-2',  'Midnight Highway',   'artist-2', 'genre-synthwave',  'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-01-20T14:30:00Z', 312),
-  ('song-3',  'Urban Pulse',        'artist-3', 'genre-hiphop',     'Spotify',      '/placeholder.svg?height=300&width=300', '2024-02-01T09:00:00Z', 198),
-  ('song-4',  'Ocean Breeze',       'artist-4', 'genre-chill',      'SoundCloud',   '/placeholder.svg?height=300&width=300', '2024-02-10T16:45:00Z', 267),
-  ('song-5',  'City Lights',        'artist-5', 'genre-rnb',        'Spotify',      '/placeholder.svg?height=300&width=300', '2024-02-15T11:20:00Z', 224),
-  ('song-6',  'Neon Glow',          'artist-1', 'genre-electronic', 'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-02-20T08:00:00Z', 289),
-  ('song-7',  'Street Poetry',      'artist-5', 'genre-hiphop',     'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-01T13:15:00Z', 231),
-  ('song-8',  'Retro Wave',         'artist-2', 'genre-synthwave',  'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-05T17:30:00Z', 276),
-  ('song-9',  'Digital Love',       'artist-3', 'genre-electronic', 'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-03-10T10:45:00Z', 203),
-  ('song-10', 'Sunset Boulevard',   'artist-4', 'genre-chill',      'SoundCloud',   '/placeholder.svg?height=300&width=300', '2024-03-15T15:00:00Z', 256),
-  ('song-11', 'Electric Soul',      'artist-1', 'genre-rnb',        'Spotify',      '/placeholder.svg?height=300&width=300', '2024-03-20T09:30:00Z', 218),
-  ('song-12', 'Late Night Drive',   'artist-2', 'genre-synthwave',  'Apple Music',  '/placeholder.svg?height=300&width=300', '2024-03-25T22:00:00Z', 342)
+insert into public.songs (id, title, artist_id, genre_id, cover_image_url, created_at, duration) values
+  ('song-1',  'Starlight Dreams',   'artist-1', 'genre-electronic', '/placeholder.svg?height=300&width=300', '2024-01-15T10:00:00Z', 245),
+  ('song-2',  'Midnight Highway',   'artist-2', 'genre-synthwave',  '/placeholder.svg?height=300&width=300', '2024-01-20T14:30:00Z', 312),
+  ('song-3',  'Urban Pulse',        'artist-3', 'genre-hiphop',     '/placeholder.svg?height=300&width=300', '2024-02-01T09:00:00Z', 198),
+  ('song-4',  'Ocean Breeze',       'artist-4', 'genre-chill',      '/placeholder.svg?height=300&width=300', '2024-02-10T16:45:00Z', 267),
+  ('song-5',  'City Lights',        'artist-5', 'genre-rnb',        '/placeholder.svg?height=300&width=300', '2024-02-15T11:20:00Z', 224),
+  ('song-6',  'Neon Glow',          'artist-1', 'genre-electronic', '/placeholder.svg?height=300&width=300', '2024-02-20T08:00:00Z', 289),
+  ('song-7',  'Street Poetry',      'artist-5', 'genre-hiphop',     '/placeholder.svg?height=300&width=300', '2024-03-01T13:15:00Z', 231),
+  ('song-8',  'Retro Wave',         'artist-2', 'genre-synthwave',  '/placeholder.svg?height=300&width=300', '2024-03-05T17:30:00Z', 276),
+  ('song-9',  'Digital Love',       'artist-3', 'genre-electronic', '/placeholder.svg?height=300&width=300', '2024-03-10T10:45:00Z', 203),
+  ('song-10', 'Sunset Boulevard',   'artist-4', 'genre-chill',      '/placeholder.svg?height=300&width=300', '2024-03-15T15:00:00Z', 256),
+  ('song-11', 'Electric Soul',      'artist-1', 'genre-rnb',        '/placeholder.svg?height=300&width=300', '2024-03-20T09:30:00Z', 218),
+  ('song-12', 'Late Night Drive',   'artist-2', 'genre-synthwave',  '/placeholder.svg?height=300&width=300', '2024-03-25T22:00:00Z', 342)
 on conflict (id) do nothing;
 
 -- Optional user favorite songs (set after songs exist)

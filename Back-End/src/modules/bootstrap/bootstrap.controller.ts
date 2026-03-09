@@ -6,6 +6,7 @@ import {
   fromDbSong,
   fromDbUser,
 } from '@/common/utils/mappers'
+import { decorateSongs } from '@/common/patterns/song-decorator/song.decorator'
 
 @Controller('bootstrap')
 export class BootstrapController {
@@ -37,11 +38,13 @@ export class BootstrapController {
     const currentRole =
       users.find((user) => user.id === currentUserId)?.role ?? 'user'
 
+    const songs = await decorateSongs((songsResult.data ?? []).map(fromDbSong))
+
     return {
       users,
       genres: (genresResult.data ?? []).map(fromDbGenre),
       artists: (artistsResult.data ?? []).map(fromDbArtist),
-      songs: (songsResult.data ?? []).map(fromDbSong),
+      songs,
       currentUserId,
       currentRole,
     }

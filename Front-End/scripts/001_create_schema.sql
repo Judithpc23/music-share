@@ -38,7 +38,6 @@ create table if not exists public.songs (
   title text not null,
   artist_id text not null references public.artists(id),
   genre_id text not null references public.genres(id),
-  provider text not null,
   cover_image_url text,
   created_at timestamptz not null default now(),
   duration integer not null default 0

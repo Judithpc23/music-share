@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import type { Genre, Artist, Song } from '@/common/types'
+import type { Genre, Artist, DecoratedSong } from '@/common/types'
 import { supabase } from '../auth/supabase-client'
 import { fromDbGenre, fromDbArtist, fromDbSong } from '@/common/utils/mappers'
+import { decorateSong, decorateSongs } from '@/common/patterns/song-decorator/song.decorator'
 
 @Injectable()
 export class CatalogService {
@@ -63,7 +64,7 @@ export class CatalogService {
     return data ? fromDbArtist(data) : null
   }
 
-  async getAllSongs(): Promise<Song[]> {
+  async getAllSongs(): Promise<DecoratedSong[]> {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
@@ -74,10 +75,10 @@ export class CatalogService {
       return []
     }
 
-    return (data ?? []).map(fromDbSong)
+    return decorateSongs((data ?? []).map(fromDbSong))
   }
 
-  async getSongById(id: string): Promise<Song | null> {
+  async getSongById(id: string): Promise<DecoratedSong | null> {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
@@ -89,10 +90,11 @@ export class CatalogService {
       return null
     }
 
-    return data ? fromDbSong(data) : null
+    if (!data) return null
+    return decorateSong(fromDbSong(data))
   }
 
-  async getSongsByGenre(genreId: string): Promise<Song[]> {
+  async getSongsByGenre(genreId: string): Promise<DecoratedSong[]> {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
@@ -104,10 +106,10 @@ export class CatalogService {
       return []
     }
 
-    return (data ?? []).map(fromDbSong)
+    return decorateSongs((data ?? []).map(fromDbSong))
   }
 
-  async getSongsByArtist(artistId: string): Promise<Song[]> {
+  async getSongsByArtist(artistId: string): Promise<DecoratedSong[]> {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
@@ -119,10 +121,10 @@ export class CatalogService {
       return []
     }
 
-    return (data ?? []).map(fromDbSong)
+    return decorateSongs((data ?? []).map(fromDbSong))
   }
 
-  async searchSongs(query: string): Promise<Song[]> {
+  async searchSongs(query: string): Promise<DecoratedSong[]> {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
@@ -135,6 +137,6 @@ export class CatalogService {
       return []
     }
 
-    return (data ?? []).map(fromDbSong)
+    return decorateSongs((data ?? []).map(fromDbSong))
   }
 }

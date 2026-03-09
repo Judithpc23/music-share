@@ -1,5 +1,13 @@
 import { Injectable } from '@nestjs/common'
-import type { User, Genre, Artist, Song, Share, Comment, ListeningRoom } from '@/common/types'
+import type {
+  User,
+  Genre,
+  Artist,
+  DecoratedSong,
+  Share,
+  Comment,
+  ListeningRoom,
+} from '@/common/types'
 import { supabase } from '../auth/supabase-client'
 import {
   fromDbUser,
@@ -9,6 +17,7 @@ import {
   fromDbComment,
   fromDbListeningRoom,
 } from '@/common/utils/mappers'
+import { decorateSong, decorateSongs } from '@/common/patterns/song-decorator/song.decorator'
 
 @Injectable()
 export class LookupsService {
@@ -42,7 +51,7 @@ export class LookupsService {
     return data ? fromDbArtist(data) : null
   }
 
-  async getSongById(id: string): Promise<Song | null> {
+  async getSongById(id: string): Promise<DecoratedSong | null> {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
@@ -54,7 +63,8 @@ export class LookupsService {
       return null
     }
 
-    return data ? fromDbSong(data) : null
+    if (!data) return null
+    return decorateSong(fromDbSong(data))
   }
 
   async getUserById(id: string): Promise<User | null> {
@@ -156,7 +166,7 @@ export class LookupsService {
     return (data ?? []).map(fromDbArtist)
   }
 
-  async getAllSongs(): Promise<Song[]> {
+  async getAllSongs(): Promise<DecoratedSong[]> {
     const { data, error } = await supabase
       .from('songs')
       .select('*')
@@ -167,7 +177,7 @@ export class LookupsService {
       return []
     }
 
-    return (data ?? []).map(fromDbSong)
+    return decorateSongs((data ?? []).map(fromDbSong))
   }
 
   async getAllUsers(): Promise<User[]> {

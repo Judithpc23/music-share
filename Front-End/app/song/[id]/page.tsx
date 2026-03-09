@@ -139,7 +139,6 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
         <div className="flex-1">
           <div className="flex flex-wrap gap-2 mb-2">
             <Badge variant="secondary">{genre?.name ?? "Unknown Genre"}</Badge>
-            <Badge variant="outline">{song.provider}</Badge>
           </div>
           <h1 className="text-3xl font-bold">{song.title}</h1>
           <div className="flex items-center gap-2 mt-2 text-lg text-muted-foreground">
