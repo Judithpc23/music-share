@@ -27,17 +27,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { CreatePostDialog } from "@/components/create-post-dialog"
 import { useApp } from "@/controllers/store"
 import { useToast } from "@/hooks/use-toast"
 import { formatDistanceToNow, formatTime } from "@/controllers/date-utils"
-import type { ShareVisibility } from "@/utils/types"
 
 export default function SongDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -51,7 +44,6 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     getRoomsPlayingSong,
     addComment, 
     addReaction, 
-    addShare,
     addReport,
     hasUserReacted,
     createRoom,
@@ -62,8 +54,6 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
   const { toast } = useToast()
   
   const [commentText, setCommentText] = useState("")
-  const [shareCaption, setShareCaption] = useState("")
-  const [shareVisibility, setShareVisibility] = useState<ShareVisibility>("public")
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [roomName, setRoomName] = useState("")
   const [roomDialogOpen, setRoomDialogOpen] = useState(false)
@@ -114,17 +104,6 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     toast({
       title: "Comment added",
       description: "Your comment has been posted.",
-    })
-  }
-
-  const handleShare = () => {
-    if (!shareCaption.trim()) return
-    addShare(id, shareCaption, shareVisibility)
-    setShareCaption("")
-    setShareDialogOpen(false)
-    toast({
-      title: "Shared to profile",
-      description: "This song has been added to your profile.",
     })
   }
 
@@ -188,50 +167,16 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
               Love ({loveCount})
             </Button>
             
-            {/* Share Dialog */}
-            <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline">
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Share to Profile</DialogTitle>
-                  <DialogDescription>
-                    Add this song to your profile with a caption.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Textarea
-                    placeholder="Write a caption..."
-                    value={shareCaption}
-                    onChange={(e) => setShareCaption(e.target.value)}
-                  />
-                  <Select 
-                    value={shareVisibility} 
-                    onValueChange={(v) => setShareVisibility(v as ShareVisibility)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Visibility" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="friends">Friends Only</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setShareDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleShare} disabled={!shareCaption.trim()}>
-                    Share
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+            <CreatePostDialog
+              open={shareDialogOpen}
+              onOpenChange={setShareDialogOpen}
+              presetSongId={id}
+              defaultPostType="share"
+            />
 
             {/* Create Room Dialog */}
             <Dialog open={roomDialogOpen} onOpenChange={setRoomDialogOpen}>
@@ -411,3 +356,4 @@ export default function SongDetailPage({ params }: { params: Promise<{ id: strin
     </div>
   )
 }
+

@@ -54,7 +54,7 @@ export class NotificationsMediator {
     let ownerId: string | null = null
     if (reaction.targetType === 'share') {
       const { data } = await supabase
-        .from('shares')
+        .from('posts')
         .select('user_id')
         .eq('id', reaction.targetId)
         .single()
@@ -86,8 +86,9 @@ export class NotificationsMediator {
 
   async notifyCommentCreated(comment: Comment) {
     const { data } = await supabase
-      .from('shares')
+      .from('posts')
       .select('id, user_id')
+      .eq('post_type', 'share')
       .eq('song_id', comment.songId)
       .eq('status', 'active')
 

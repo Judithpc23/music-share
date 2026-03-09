@@ -58,6 +58,31 @@ export interface Share {
   status: ContentStatus
 }
 
+export type MoodType = "nostalgia" | "energy" | "chill"
+
+export interface PostTemplate {
+  title: string
+  descriptionPlaceholder: string
+  emotionalContext: string
+  suggestedTags: string[]
+  defaultPrivacy: "public" | "friends"
+  color: string
+}
+
+export interface Post {
+  id: string
+  userId: string
+  postType: "template" | "share"
+  content: string
+  mood?: MoodType
+  template?: PostTemplate
+  songId?: string
+  captionText?: string
+  status?: ContentStatus
+  createdAt: string
+  updatedAt?: string
+}
+
 // Reaction types
 export type ReactionTargetType = "song" | "share" | "comment"
 export type ReactionType = "like" | "love"

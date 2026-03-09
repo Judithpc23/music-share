@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { PostsService } from './posts.service'
 import { PostTemplateFactory } from './patterns/prototype/post-template.factory'
 import { NotificationsMediator } from '../notifications/notifications.mediator'
+import { FollowsService } from '../follows/follows.service'
 
 describe('PostsService - Prototype Pattern', () => {
   let service: PostsService
@@ -16,6 +17,13 @@ describe('PostsService - Prototype Pattern', () => {
           provide: NotificationsMediator,
           useValue: {
             notifyPostCreated: jest.fn(),
+          },
+        },
+        {
+          provide: FollowsService,
+          useValue: {
+            canViewUserContent: jest.fn().mockResolvedValue(true),
+            getFollowing: jest.fn().mockResolvedValue([]),
           },
         },
       ],

@@ -1,20 +1,23 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { User, Music, Activity, Heart, MessageCircle, Share2 } from "lucide-react"
+import { User, Music, Activity, Heart, MessageCircle, Share2, Plus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { ShareCard } from "@/components/share-card"
+import { Button } from "@/components/ui/button"
+import { PostFeedCard } from "@/components/post-feed-card"
+import { CreatePostDialog } from "@/components/create-post-dialog"
 import { useApp } from "@/controllers/store"
+import { backendController } from "@/controllers/backend-controller"
 import { formatDistanceToNow } from "@/controllers/date-utils"
+import type { Post } from "@/utils/types"
 
 export default function ProfilePage() {
   const router = useRouter()
   const { 
     currentUserId,
-    getSharesForUser, 
     reactions, 
     comments, 
     getUserById, 
@@ -23,7 +26,8 @@ export default function ProfilePage() {
   } = useApp()
 
   const selectedUser = getUserById(currentUserId)
-  const userShares = currentUserId ? getSharesForUser(currentUserId) : []
+  const [createOpen, setCreateOpen] = useState(false)
+  const [userPosts, setUserPosts] = useState<Post[]>([])
   
   // Get user's reactions
   const userReactions = reactions.filter((r) => r.userId === currentUserId)
@@ -50,6 +54,17 @@ export default function ProfilePage() {
       router.replace("/auth")
     }
   }, [selectedUser, router])
+
+  useEffect(() => {
+    if (!currentUserId) return
+    void backendController
+      .getPostsByUser(currentUserId, currentUserId)
+      .then(setUserPosts)
+      .catch((error) => {
+        console.error("[api] failed to load profile posts", error)
+        setUserPosts([])
+      })
+  }, [currentUserId])
 
   if (!selectedUser) return null
 
@@ -79,9 +94,9 @@ export default function ProfilePage() {
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 text-2xl font-bold">
                 <Share2 className="h-5 w-5 text-muted-foreground" />
-                {userShares.length}
+                {userPosts.length}
               </div>
-              <p className="text-sm text-muted-foreground">Shares</p>
+              <p className="text-sm text-muted-foreground">Posts</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 text-2xl font-bold">
@@ -102,11 +117,11 @@ export default function ProfilePage() {
       </Card>
 
       {/* Tabs */}
-      <Tabs defaultValue="shares">
+      <Tabs defaultValue="posts">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="shares" className="flex items-center gap-2">
+          <TabsTrigger value="posts" className="flex items-center gap-2">
             <Music className="h-4 w-4" />
-            Shared Songs
+            Posts
           </TabsTrigger>
           <TabsTrigger value="activity" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
@@ -114,17 +129,20 @@ export default function ProfilePage() {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="shares" className="mt-4">
-          {userShares.length > 0 ? (
+        <TabsContent value="posts" className="mt-4">
+          {userPosts.length > 0 ? (
             <div className="space-y-4">
-              {userShares.map(share => (
-                <ShareCard key={share.id} share={share} />
+              {userPosts.map((post) => (
+                <PostFeedCard key={post.id} item={post} onChanged={() => {
+                  if (!currentUserId) return
+                  void backendController.getPostsByUser(currentUserId, currentUserId).then(setUserPosts)
+                }} />
               ))}
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg">
               <Music className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No shared songs yet.</p>
+              <p>No tienes publicaciones aun.</p>
             </div>
           )}
         </TabsContent>
@@ -208,6 +226,14 @@ export default function ProfilePage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <div className="flex justify-end">
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Crear Post
+        </Button>
+      </div>
+      <CreatePostDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   )
 }

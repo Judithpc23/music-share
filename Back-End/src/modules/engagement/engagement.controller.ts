@@ -129,7 +129,7 @@ export class EngagementController {
       userId: string
       songId: string
       captionText: string
-      visibility: 'public' | 'friends'
+      visibility?: 'public' | 'friends'
       createdAt?: string
     }
   ) {

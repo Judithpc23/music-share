@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { Music, Menu, LogOut } from "lucide-react"
+import { Music, Menu, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useApp } from "@/controllers/store"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,9 +10,15 @@ import { signOutUser } from "@/controllers/auth-controller"
 
 interface AppHeaderProps {
   onToggleMobileMenu: () => void
+  onToggleDesktopSidebar: () => void
+  desktopSidebarCollapsed: boolean
 }
 
-export function AppHeader({ onToggleMobileMenu }: AppHeaderProps) {
+export function AppHeader({
+  onToggleMobileMenu,
+  onToggleDesktopSidebar,
+  desktopSidebarCollapsed,
+}: AppHeaderProps) {
   const { currentUserId, currentRole, users } = useApp()
   const router = useRouter()
   const currentUser = useMemo(
@@ -42,6 +48,19 @@ export function AppHeader({ onToggleMobileMenu }: AppHeaderProps) {
             aria-label="Toggle navigation menu"
           >
             <Menu className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden lg:inline-flex h-9 w-9"
+            onClick={onToggleDesktopSidebar}
+            aria-label={desktopSidebarCollapsed ? "Mostrar barra lateral" : "Ocultar barra lateral"}
+          >
+            {desktopSidebarCollapsed ? (
+              <PanelLeftOpen className="h-5 w-5" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5" />
+            )}
           </Button>
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">

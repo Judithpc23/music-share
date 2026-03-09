@@ -1,14 +1,29 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { TrendingUp, Radio, Share2 } from "lucide-react"
 import { SongCard } from "@/components/song-card"
 import { RoomCard } from "@/components/room-card"
-import { ShareCard } from "@/components/share-card"
+import { PostFeedCard } from "@/components/post-feed-card"
+import { backendController } from "@/controllers/backend-controller"
 import { useApp } from "@/controllers/store"
+import type { Post } from "@/utils/types"
 
 export default function HomePage() {
-  const { songs, shares, getActiveRooms, getSongReactionCount, getSongCommentCount } = useApp()
+  const { songs, currentUserId, getActiveRooms, getSongReactionCount, getSongCommentCount } = useApp()
   const activeRooms = getActiveRooms()
+  const [recentPosts, setRecentPosts] = useState<Post[]>([])
+
+  const loadRecentPosts = async () => {
+    if (!currentUserId) return
+    try {
+      const items = await backendController.getDiscoverPosts(currentUserId)
+      setRecentPosts(items.slice(0, 4))
+    } catch (error) {
+      console.error("[api] failed to load home posts", error)
+      setRecentPosts([])
+    }
+  }
   
   // Get trending songs (sorted by total reactions + comments)
   const trendingSongs = [...songs]
@@ -19,11 +34,10 @@ export default function HomePage() {
     })
     .slice(0, 6)
   
-  // Get recent shares (active only, sorted by date)
-  const recentShares = shares
-    .filter(s => s.status === "active")
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 4)
+  useEffect(() => {
+    void loadRecentPosts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUserId])
 
   return (
     <div className="space-y-8">
@@ -66,15 +80,15 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Recent Shares Section */}
+      {/* Recent Posts Section */}
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Share2 className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold">Recent Shares</h2>
+          <h2 className="text-lg font-semibold">Recent Posts</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {recentShares.map((share) => (
-            <ShareCard key={share.id} share={share} />
+          {recentPosts.map((post) => (
+            <PostFeedCard key={post.id} item={post} onChanged={() => void loadRecentPosts()} />
           ))}
         </div>
       </section>

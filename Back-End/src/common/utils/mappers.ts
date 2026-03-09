@@ -333,9 +333,13 @@ export const toDbRoomActivity = (activity: RoomActivity): DbRoomActivity => ({
 export type DbPost = {
   id: string
   user_id: string
+  post_type: 'template' | 'share'
   content: string
-  mood: Post['mood']
-  template: DbPostTemplate
+  mood: NonNullable<Post['mood']> | null
+  template: DbPostTemplate | null
+  song_id: string | null
+  caption_text: string | null
+  status: Share['status'] | null
   created_at: string
   updated_at?: string
 }
@@ -353,9 +357,13 @@ export type DbPostTemplate = {
 export const toDbPost = (post: Post): DbPost => ({
   id: post.id,
   user_id: post.userId,
+  post_type: post.postType,
   content: post.content,
-  mood: post.mood,
-  template: toDbPostTemplate(post.template),
+  mood: post.mood ?? null,
+  template: post.template ? toDbPostTemplate(post.template) : null,
+  song_id: post.songId ?? null,
+  caption_text: post.captionText ?? null,
+  status: post.status ?? null,
   created_at: post.createdAt.toISOString(),
   updated_at: post.updatedAt?.toISOString(),
 })
@@ -363,9 +371,13 @@ export const toDbPost = (post: Post): DbPost => ({
 export const fromDbPost = (dbPost: DbPost): Post => ({
   id: dbPost.id,
   userId: dbPost.user_id,
+  postType: dbPost.post_type,
   content: dbPost.content,
-  mood: dbPost.mood,
-  template: fromDbPostTemplate(dbPost.template),
+  mood: dbPost.mood ?? undefined,
+  template: dbPost.template ? fromDbPostTemplate(dbPost.template) : undefined,
+  songId: dbPost.song_id ?? undefined,
+  captionText: dbPost.caption_text ?? undefined,
+  status: dbPost.status ?? undefined,
   createdAt: new Date(dbPost.created_at),
   updatedAt: dbPost.updated_at ? new Date(dbPost.updated_at) : undefined,
 })

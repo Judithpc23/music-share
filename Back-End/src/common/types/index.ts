@@ -80,9 +80,13 @@ export interface IPostPrototype {
 export interface Post {
   id: string
   userId: string
+  postType: 'template' | 'share'
   content: string
-  mood: MoodType
-  template: PostTemplate
+  mood?: MoodType
+  template?: PostTemplate
+  songId?: string
+  captionText?: string
+  status?: ContentStatus
   createdAt: Date
   updatedAt?: Date
 }

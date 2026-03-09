@@ -15,11 +15,19 @@ import {
   toDbComment,
   toDbReaction,
   toDbReport,
-  toDbShare,
 } from '@/common/utils/mappers'
 import { buildId } from '@/common/utils/id-generator'
 import { NotificationsMediator } from '../notifications/notifications.mediator'
 import { FollowsService } from '../follows/follows.service'
+
+type SharePostRow = {
+  id: string
+  user_id: string
+  song_id: string
+  caption_text: string
+  created_at: string
+  status: ContentStatus
+}
 
 @Injectable()
 export class EngagementService {
@@ -27,6 +35,18 @@ export class EngagementService {
     private readonly notificationsMediator: NotificationsMediator,
     private readonly followsService: FollowsService
   ) {}
+
+  private mapSharePostRow(row: SharePostRow): Share {
+    return {
+      id: row.id,
+      userId: row.user_id,
+      songId: row.song_id,
+      captionText: row.caption_text,
+      visibility: 'public',
+      createdAt: row.created_at,
+      status: row.status,
+    }
+  }
 
   async getAllReactions(): Promise<Reaction[]> {
     const { data, error } = await supabase.from('reactions').select('*')
@@ -239,8 +259,9 @@ export class EngagementService {
     }
 
     const { data, error } = await supabase
-      .from('shares')
+      .from('posts')
       .select('*')
+      .eq('post_type', 'share')
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
@@ -250,29 +271,14 @@ export class EngagementService {
       return []
     }
 
-    const relationship = viewerUserId
-      ? await this.followsService.getRelationship(viewerUserId, userId)
-      : null
-    const canViewFriends =
-      viewerUserId === userId || relationship?.status === 'accepted'
-
-    return (data ?? [])
-      .map((row) => ({
-        id: row.id,
-        userId: row.user_id,
-        songId: row.song_id,
-        captionText: row.caption_text,
-        visibility: row.visibility,
-        createdAt: row.created_at,
-        status: row.status,
-      }))
-      .filter((share) => share.visibility === 'public' || canViewFriends)
+    return (data ?? []).map((row) => this.mapSharePostRow(row))
   }
 
   async getSharesForSong(songId: string): Promise<Share[]> {
     const { data, error } = await supabase
-      .from('shares')
+      .from('posts')
       .select('*')
+      .eq('post_type', 'share')
       .eq('song_id', songId)
       .eq('status', 'active')
 
@@ -281,21 +287,14 @@ export class EngagementService {
       return []
     }
 
-    return (data ?? []).map((row) => ({
-      id: row.id,
-      userId: row.user_id,
-      songId: row.song_id,
-      captionText: row.caption_text,
-      visibility: row.visibility,
-      createdAt: row.created_at,
-      status: row.status,
-    }))
+    return (data ?? []).map((row) => this.mapSharePostRow(row))
   }
 
   async getAllShares(viewerUserId?: string): Promise<Share[]> {
     const { data, error } = await supabase
-      .from('shares')
+      .from('posts')
       .select('*')
+      .eq('post_type', 'share')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -303,19 +302,9 @@ export class EngagementService {
       return []
     }
 
-    const shares = (data ?? []).map((row) => ({
-      id: row.id,
-      userId: row.user_id,
-      songId: row.song_id,
-      captionText: row.caption_text,
-      visibility: row.visibility,
-      createdAt: row.created_at,
-      status: row.status,
-    }))
+    const shares = (data ?? []).map((row) => this.mapSharePostRow(row))
 
-    if (!viewerUserId) {
-      return shares.filter((share) => share.visibility === 'public')
-    }
+    if (!viewerUserId) return []
 
     const visibility = await Promise.all(
       shares.map(async (share) => {
@@ -325,15 +314,7 @@ export class EngagementService {
           viewerUserId,
           share.userId
         )
-        if (!canViewOwner) return false
-
-        if (share.visibility === 'public') return true
-
-        const relationship = await this.followsService.getRelationship(
-          viewerUserId,
-          share.userId
-        )
-        return relationship?.status === 'accepted'
+        return canViewOwner
       })
     )
 
@@ -344,7 +325,7 @@ export class EngagementService {
     userId: string,
     songId: string,
     captionText: string,
-    visibility: ShareVisibility,
+    visibility?: ShareVisibility,
     options?: { id?: string; createdAt?: string }
   ): Promise<{ success: boolean; share?: Share }> {
     const newShare: Share = {
@@ -352,19 +333,36 @@ export class EngagementService {
       userId,
       songId,
       captionText,
-      visibility,
+      visibility: visibility ?? 'public',
       createdAt: options?.createdAt ?? new Date().toISOString(),
       status: 'active',
     }
 
     const { error } = await supabase
-      .from('shares')
-      .insert(toDbShare(newShare))
+      .from('posts')
+      .insert({
+        id: newShare.id,
+        user_id: newShare.userId,
+        post_type: 'share',
+        content: newShare.captionText,
+        mood: null,
+        template: null,
+        song_id: newShare.songId,
+        caption_text: newShare.captionText,
+        status: newShare.status,
+        created_at: newShare.createdAt,
+      })
 
     if (error) {
       console.error('Failed to add share:', error)
       return { success: false }
     }
+
+    await this.notificationsMediator.notifyPostCreated({
+      postId: newShare.id,
+      authorUserId: newShare.userId,
+      mood: 'share',
+    })
 
     return { success: true, share: newShare }
   }
@@ -374,8 +372,9 @@ export class EngagementService {
     status: ContentStatus
   ): Promise<{ success: boolean }> {
     const { error } = await supabase
-      .from('shares')
+      .from('posts')
       .update({ status })
+      .eq('post_type', 'share')
       .eq('id', shareId)
 
     if (error) {
@@ -486,8 +485,9 @@ export class EngagementService {
 
   async getSongShareCount(songId: string): Promise<number> {
     const { count, error } = await supabase
-      .from('shares')
+      .from('posts')
       .select('*', { count: 'exact', head: true })
+      .eq('post_type', 'share')
       .eq('song_id', songId)
       .eq('status', 'active')
 

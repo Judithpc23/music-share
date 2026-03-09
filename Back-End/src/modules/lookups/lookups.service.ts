@@ -6,7 +6,6 @@ import {
   fromDbGenre,
   fromDbArtist,
   fromDbSong,
-  fromDbShare,
   fromDbComment,
   fromDbListeningRoom,
 } from '@/common/utils/mappers'
@@ -75,8 +74,9 @@ export class LookupsService {
 
   async getShareById(id: string): Promise<Share | null> {
     const { data, error } = await supabase
-      .from('shares')
+      .from('posts')
       .select('*')
+      .eq('post_type', 'share')
       .eq('id', id)
       .single()
 

@@ -1,5 +1,6 @@
 import type {
   AppNotification,
+  Post,
   AppState,
   ContentStatus,
   PlaybackState,
@@ -199,6 +200,42 @@ export const backendController = {
         targetUserId
       )}`
     )
+  },
+
+  createPost(input: {
+    userId: string
+    postType?: "template" | "share"
+    moodType?: "nostalgia" | "energy" | "chill"
+    songId: string
+    text: string
+  }) {
+    return apiClient.post<Post>("/posts", input)
+  },
+
+  getDiscoverPosts(viewerUserId: string) {
+    return apiClient.get<Post[]>(`/posts/discover/${encodeURIComponent(viewerUserId)}`)
+  },
+
+  getFollowingPosts(viewerUserId: string) {
+    return apiClient.get<Post[]>(`/posts/following/${encodeURIComponent(viewerUserId)}`)
+  },
+
+  getPostsByUser(userId: string, viewerUserId: string) {
+    return apiClient.get<Post[]>(
+      `/posts/user/${encodeURIComponent(userId)}?viewerUserId=${encodeURIComponent(viewerUserId)}`
+    )
+  },
+
+  updatePost(postId: string, input: { userId: string; text: string; moodType?: "nostalgia" | "energy" | "chill" }) {
+    return apiClient.put<{ success: boolean; post?: Post }>(`/posts/${encodeURIComponent(postId)}`, input)
+  },
+
+  undoPost(postId: string, userId: string) {
+    return apiClient.post<{ success: boolean; post?: Post }>(`/posts/${encodeURIComponent(postId)}/undo`, { userId })
+  },
+
+  deletePost(postId: string, userId: string) {
+    return apiClient.post<{ success: boolean }>(`/posts/${encodeURIComponent(postId)}/delete`, { userId })
   },
 
   simulateLostRecord(commentId: string) {

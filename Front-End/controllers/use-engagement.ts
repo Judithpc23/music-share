@@ -29,6 +29,7 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
   useEffect(() => {
     const requiresFeedEngagement =
       pathname === "/" ||
+      pathname.startsWith("/posts") ||
       pathname.startsWith("/song/") ||
       pathname.startsWith("/profile") ||
       pathname.startsWith("/moderation")

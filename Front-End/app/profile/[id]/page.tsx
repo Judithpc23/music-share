@@ -6,10 +6,10 @@ import { useParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ShareCard } from "@/components/share-card"
+import { PostFeedCard } from "@/components/post-feed-card"
 import { useApp } from "@/controllers/store"
 import { backendController } from "@/controllers/backend-controller"
-import type { Share } from "@/utils/types"
+import type { Post } from "@/utils/types"
 
 export default function PublicProfilePage() {
   const params = useParams<{ id: string }>()
@@ -22,7 +22,7 @@ export default function PublicProfilePage() {
 
   const targetUserId = params.id
   const targetUser = getUserById(targetUserId)
-  const [shares, setShares] = useState<Share[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [followStatus, setFollowStatus] = useState<{
     canView: boolean
@@ -56,13 +56,13 @@ export default function PublicProfilePage() {
       setFollowStatus(status)
 
       if (status.canView) {
-        const userShares = await backendController.getSharesForUser(
+        const userPosts = await backendController.getPostsByUser(
           targetUserId,
           currentUserId
         )
-        setShares(userShares)
+        setPosts(userPosts)
       } else {
-        setShares([])
+        setPosts([])
       }
     } catch (error) {
       console.error("[api] failed to load profile visibility", error)
@@ -134,7 +134,7 @@ export default function PublicProfilePage() {
 
           <div className="grid grid-cols-3 gap-3 border-t pt-4">
             <div className="text-center">
-              <p className="text-xl font-semibold">{shares.length}</p>
+              <p className="text-xl font-semibold">{posts.length}</p>
               <p className="text-xs text-muted-foreground">Publicaciones</p>
             </div>
             <div className="text-center">
@@ -172,14 +172,16 @@ export default function PublicProfilePage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {shares.length === 0 ? (
+          {posts.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-muted-foreground">
                 Este usuario no tiene publicaciones visibles.
               </CardContent>
             </Card>
           ) : (
-            shares.map((share) => <ShareCard key={share.id} share={share} />)
+            posts.map((post) => (
+              <PostFeedCard key={post.id} item={post} onChanged={() => void loadProfile()} />
+            ))
           )}
         </div>
       )}
