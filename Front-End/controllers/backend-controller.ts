@@ -205,7 +205,7 @@ export const backendController = {
   createPost(input: {
     userId: string
     postType?: "template" | "share"
-    moodType?: "nostalgia" | "energy" | "chill"
+    moodType: "nostalgia" | "energy" | "chill"
     songId: string
     text: string
   }) {

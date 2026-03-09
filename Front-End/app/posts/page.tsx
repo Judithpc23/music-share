@@ -1,22 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Compass, Users, Plus } from "lucide-react"
+import { Compass, Users } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { backendController } from "@/controllers/backend-controller"
 import { useApp } from "@/controllers/store"
 import type { Post } from "@/utils/types"
 import { PostFeedCard } from "@/components/post-feed-card"
-import { CreatePostDialog } from "@/components/create-post-dialog"
 
 export default function PostsPage() {
   const { currentUserId } = useApp()
   const [activeTab, setActiveTab] = useState<"discover" | "following">("discover")
   const [discoverPosts, setDiscoverPosts] = useState<Post[]>([])
   const [followingPosts, setFollowingPosts] = useState<Post[]>([])
-  const [dialogOpen, setDialogOpen] = useState(false)
 
   const loadPosts = async () => {
     if (!currentUserId) return
@@ -42,13 +39,7 @@ export default function PostsPage() {
             Descubre publicaciones globales o de personas que sigues.
           </p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" />
-          Crear Post
-        </Button>
       </div>
-
-      <CreatePostDialog open={dialogOpen} onOpenChange={setDialogOpen} onCreated={() => void loadPosts()} />
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "discover" | "following")}>
         <TabsList className="grid grid-cols-2 w-full max-w-md">

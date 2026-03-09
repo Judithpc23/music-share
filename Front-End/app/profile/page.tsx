@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { User, Music, Activity, Heart, MessageCircle, Share2, Plus } from "lucide-react"
+import { User, Music, Activity, Heart, MessageCircle, Share2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { PostFeedCard } from "@/components/post-feed-card"
-import { CreatePostDialog } from "@/components/create-post-dialog"
 import { useApp } from "@/controllers/store"
 import { backendController } from "@/controllers/backend-controller"
 import { formatDistanceToNow } from "@/controllers/date-utils"
@@ -26,7 +24,6 @@ export default function ProfilePage() {
   } = useApp()
 
   const selectedUser = getUserById(currentUserId)
-  const [createOpen, setCreateOpen] = useState(false)
   const [userPosts, setUserPosts] = useState<Post[]>([])
   
   // Get user's reactions
@@ -227,13 +224,6 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
 
-      <div className="flex justify-end">
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Crear Post
-        </Button>
-      </div>
-      <CreatePostDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   )
 }

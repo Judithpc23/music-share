@@ -1,10 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Compass, Radio, User, Shield, Inbox, FileText } from "lucide-react"
+import { Home, Compass, Radio, User, Shield, Inbox, FileText, PlusSquare } from "lucide-react"
 import { cn } from "@/utils/cn"
 import { useApp } from "@/controllers/store"
+import { Button } from "@/components/ui/button"
+import { CreatePostDialog } from "@/components/create-post-dialog"
 import {
   Tooltip,
   TooltipContent,
@@ -30,6 +33,7 @@ interface SidebarNavProps {
 export function SidebarNav({ onNavigate, collapsed = false }: SidebarNavProps) {
   const pathname = usePathname()
   const { currentRole } = useApp()
+  const [createOpen, setCreateOpen] = useState(false)
 
   return (
     <nav className={`flex flex-col gap-1 ${collapsed ? "p-2" : "p-4"}`}>
@@ -60,16 +64,46 @@ export function SidebarNav({ onNavigate, collapsed = false }: SidebarNavProps) {
             </Link>
           )
 
-          if (!collapsed) return link
-
-          return (
+          const wrappedLink = !collapsed ? (
+            link
+          ) : (
             <Tooltip key={item.href}>
               <TooltipTrigger asChild>{link}</TooltipTrigger>
               <TooltipContent side="right">{item.label}</TooltipContent>
             </Tooltip>
           )
+
+          if (item.href !== "/profile") {
+            return wrappedLink
+          }
+
+          const createButton = (
+            <Button
+              onClick={() => setCreateOpen(true)}
+              className={collapsed ? "w-10 h-10 p-0 mt-1" : "w-full mt-1"}
+              variant="default"
+            >
+              <PlusSquare className="h-4 w-4 shrink-0" />
+              {!collapsed ? <span className="ml-2">Crear Post</span> : null}
+            </Button>
+          )
+
+          return (
+            <div key={`${item.href}-with-create`} className="space-y-1">
+              {wrappedLink}
+              {collapsed ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>{createButton}</TooltipTrigger>
+                  <TooltipContent side="right">Crear Post</TooltipContent>
+                </Tooltip>
+              ) : (
+                createButton
+              )}
+            </div>
+          )
         })}
       </TooltipProvider>
+      <CreatePostDialog open={createOpen} onOpenChange={setCreateOpen} />
     </nav>
   )
 }

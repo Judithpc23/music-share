@@ -39,18 +39,22 @@ export class PostsService {
   async createPost(
     userId: string,
     input: {
-      moodType?: MoodType
+      moodType: MoodType
       songId: string
       text: string
       postType?: 'template' | 'share'
       customizations?: Partial<PostTemplate>
     }
   ): Promise<Post> {
+    if (!input.moodType) {
+      throw new BadRequestException('moodType is required')
+    }
+
     if (!input.songId?.trim()) {
       throw new BadRequestException('songId is required')
     }
 
-    const effectiveMood = input.moodType ?? 'chill'
+    const effectiveMood = input.moodType
     let template = this.templateFactory.createTemplate(effectiveMood)
     if (input.customizations) {
       template = template.customize(input.customizations)

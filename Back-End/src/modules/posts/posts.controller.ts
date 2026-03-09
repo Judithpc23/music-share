@@ -12,7 +12,7 @@ export class PostsController {
     body: {
       userId: string
       postType?: 'template' | 'share'
-      moodType?: MoodType
+      moodType: MoodType
       songId: string
       text: string
       customizations?: Partial<PostTemplate>
