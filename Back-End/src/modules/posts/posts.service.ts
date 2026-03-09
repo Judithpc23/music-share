@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { SupabaseClient } from '@supabase/supabase-js'
 import { PostTemplateFactory } from './patterns/prototype/post-template.factory'
 import { MoodType, Post, PostTemplate } from '@/common/types'
 import { toDbPost, fromDbPost } from '@/common/utils/mappers'
 import { buildId } from '@/common/utils/id-generator'
+import { supabase } from '../auth/supabase-client'
+import { NotificationsMediator } from '../notifications/notifications.mediator'
 
 /**
  * Posts service for managing posts with prototype pattern templates
@@ -13,11 +15,11 @@ import { buildId } from '@/common/utils/id-generator'
 export class PostsService {
   private supabase: SupabaseClient
 
-  constructor(private readonly templateFactory: PostTemplateFactory) {
-    this.supabase = createClient(
-      process.env.SUPABASE_URL || '',
-      process.env.SUPABASE_KEY || ''
-    )
+  constructor(
+    private readonly templateFactory: PostTemplateFactory,
+    private readonly notificationsMediator: NotificationsMediator
+  ) {
+    this.supabase = supabase
   }
 
   /**
@@ -58,6 +60,12 @@ export class PostsService {
         console.error('Error creating post:', error)
         throw error
       }
+
+      await this.notificationsMediator.notifyPostCreated({
+        postId: post.id,
+        authorUserId: post.userId,
+        mood: post.mood,
+      })
 
       return post
     } catch (error) {

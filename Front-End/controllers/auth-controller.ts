@@ -37,12 +37,26 @@ type AuthUserResponse = {
   error: string | null
 }
 
+const isExpectedSessionTokenError = (error: string | null) => {
+  if (!error) return false
+  const normalizedError = error.toLowerCase()
+  return (
+    normalizedError.includes("invalid jwt") ||
+    normalizedError.includes("token is expired") ||
+    normalizedError.includes("invalid claims")
+  )
+}
+
 export async function getCurrentSession(): Promise<{
   data: AuthSessionResponse["data"]
   error: string | null
 }> {
   try {
     const response = await apiClient.get<AuthSessionResponse>("/auth/session")
+    if (!response.data?.session && isExpectedSessionTokenError(response.error)) {
+      apiClient.setAccessToken(null)
+      return { data: { session: null }, error: null }
+    }
     return response
   } catch (error) {
     return { data: { session: null }, error: String(error) }

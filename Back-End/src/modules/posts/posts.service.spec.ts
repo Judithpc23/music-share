@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { PostsService } from './posts.service'
 import { PostTemplateFactory } from './patterns/prototype/post-template.factory'
+import { NotificationsMediator } from '../notifications/notifications.mediator'
 
 describe('PostsService - Prototype Pattern', () => {
   let service: PostsService
@@ -8,7 +9,16 @@ describe('PostsService - Prototype Pattern', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PostsService, PostTemplateFactory],
+      providers: [
+        PostsService,
+        PostTemplateFactory,
+        {
+          provide: NotificationsMediator,
+          useValue: {
+            notifyPostCreated: jest.fn(),
+          },
+        },
+      ],
     }).compile()
 
     service = module.get<PostsService>(PostsService)

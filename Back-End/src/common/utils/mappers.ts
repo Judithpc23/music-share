@@ -335,7 +335,7 @@ export type DbPost = {
   user_id: string
   content: string
   mood: Post['mood']
-  template: PostTemplate
+  template: DbPostTemplate
   created_at: string
   updated_at?: string
 }

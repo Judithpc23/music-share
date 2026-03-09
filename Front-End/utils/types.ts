@@ -133,6 +133,38 @@ export interface RoomActivity {
   details?: string
 }
 
+// Follow & Notification types
+export type FollowStatus = "pending" | "accepted" | "rejected"
+
+export interface Follow {
+  followerId: string
+  followingId: string
+  status: FollowStatus
+  createdAt: string
+  respondedAt?: string
+}
+
+export type NotificationType =
+  | "post"
+  | "reaction"
+  | "comment"
+  | "follow_request"
+  | "follower"
+
+export interface AppNotification {
+  id: string
+  userId: string
+  actorUserId: string
+  type: NotificationType
+  title: string
+  body: string
+  targetType?: "post" | "share" | "comment" | "follow_request" | "profile"
+  targetId?: string
+  isRead: boolean
+  metadata: Record<string, unknown>
+  createdAt: string
+}
+
 // App State
 export interface AppState {
   users: User[]

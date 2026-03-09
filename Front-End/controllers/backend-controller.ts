@@ -1,4 +1,13 @@
-import type { AppState, ContentStatus, PlaybackState, Reaction, RoomActivity, Share, ShareVisibility } from "@/utils/types"
+import type {
+  AppNotification,
+  AppState,
+  ContentStatus,
+  PlaybackState,
+  Reaction,
+  RoomActivity,
+  Share,
+  ShareVisibility,
+} from "@/utils/types"
 import { apiClient } from "@/controllers/api-client"
 
 export type BootstrapPayload = Pick<
@@ -109,8 +118,18 @@ export const backendController = {
     return apiClient.put<{ success: boolean }>(`/engagement/reports/${reportId}/status`, { status })
   },
 
-  getAllShares() {
-    return apiClient.get<AppState["shares"]>("/engagement/shares")
+  getAllShares(viewerUserId: string) {
+    return apiClient.get<AppState["shares"]>(
+      `/engagement/shares?viewerUserId=${encodeURIComponent(viewerUserId)}`
+    )
+  },
+
+  getSharesForUser(userId: string, viewerUserId: string) {
+    return apiClient.get<AppState["shares"]>(
+      `/engagement/shares/user/${encodeURIComponent(userId)}?viewerUserId=${encodeURIComponent(
+        viewerUserId
+      )}`
+    )
   },
 
   getAllReactions() {
@@ -123,6 +142,63 @@ export const backendController = {
 
   getAllReports() {
     return apiClient.get<AppState["reports"]>("/engagement/reports")
+  },
+
+  getNotifications(userId: string) {
+    return apiClient.get<AppNotification[]>(
+      `/notifications/user/${encodeURIComponent(userId)}`
+    )
+  },
+
+  markNotificationRead(userId: string, notificationId: string) {
+    return apiClient.put<{ success: boolean }>(
+      `/notifications/user/${encodeURIComponent(userId)}/${encodeURIComponent(
+        notificationId
+      )}/read`,
+      {}
+    )
+  },
+
+  requestFollow(actorUserId: string, targetUserId: string) {
+    return apiClient.post<{ success: boolean; status?: "pending" | "accepted" }>(
+      `/follows/${encodeURIComponent(targetUserId)}/request`,
+      { actorUserId }
+    )
+  },
+
+  acceptFollowRequest(actorUserId: string, followerUserId: string) {
+    return apiClient.post<{ success: boolean }>(
+      `/follows/${encodeURIComponent(followerUserId)}/accept`,
+      { actorUserId }
+    )
+  },
+
+  rejectFollowRequest(actorUserId: string, followerUserId: string) {
+    return apiClient.post<{ success: boolean }>(
+      `/follows/${encodeURIComponent(followerUserId)}/reject`,
+      { actorUserId }
+    )
+  },
+
+  unfollow(actorUserId: string, targetUserId: string) {
+    return apiClient.post<{ success: boolean }>(
+      `/follows/${encodeURIComponent(targetUserId)}/unfollow`,
+      { actorUserId }
+    )
+  },
+
+  getFollowStatus(viewerUserId: string, targetUserId: string) {
+    return apiClient.get<{
+      canView: boolean
+      isPrivate: boolean
+      isFollowing: boolean
+      requestPending: boolean
+      status: "pending" | "accepted" | "rejected" | null
+    }>(
+      `/follows/${encodeURIComponent(viewerUserId)}/status/${encodeURIComponent(
+        targetUserId
+      )}`
+    )
   },
 
   simulateLostRecord(commentId: string) {

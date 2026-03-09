@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Put, Param, Body, Delete } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Get,
+  Put,
+  Param,
+  Body,
+  Delete,
+  Query,
+} from '@nestjs/common'
 import { EngagementService } from './engagement.service'
 
 @Controller('engagement')
@@ -96,13 +105,16 @@ export class EngagementController {
   }
 
   @Get('shares/user/:userId')
-  async getSharesForUser(@Param('userId') userId: string) {
-    return this.engagementService.getSharesForUser(userId)
+  async getSharesForUser(
+    @Param('userId') userId: string,
+    @Query('viewerUserId') viewerUserId?: string
+  ) {
+    return this.engagementService.getSharesForUser(userId, viewerUserId)
   }
 
   @Get('shares')
-  async getAllShares() {
-    return this.engagementService.getAllShares()
+  async getAllShares(@Query('viewerUserId') viewerUserId?: string) {
+    return this.engagementService.getAllShares(viewerUserId)
   }
 
   @Get('shares/song/:songId')

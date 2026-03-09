@@ -87,6 +87,45 @@ export interface Post {
   updatedAt?: Date
 }
 
+// Follow & Notification types
+export type FollowStatus = 'pending' | 'accepted' | 'rejected'
+
+export interface Follow {
+  followerId: string
+  followingId: string
+  status: FollowStatus
+  createdAt: string
+  respondedAt?: string
+}
+
+export type NotificationType =
+  | 'post'
+  | 'reaction'
+  | 'comment'
+  | 'follow_request'
+  | 'follower'
+
+export type NotificationTargetType =
+  | 'post'
+  | 'share'
+  | 'comment'
+  | 'follow_request'
+  | 'profile'
+
+export interface AppNotification {
+  id: string
+  userId: string
+  actorUserId: string
+  type: NotificationType
+  title: string
+  body: string
+  targetType?: NotificationTargetType
+  targetId?: string
+  isRead: boolean
+  metadata: Record<string, unknown>
+  createdAt: string
+}
+
 // Reaction types
 export type ReactionTargetType = 'song' | 'share' | 'comment'
 export type ReactionType = 'like' | 'love'

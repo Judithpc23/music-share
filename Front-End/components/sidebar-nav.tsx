@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Compass, Radio, User, Shield } from "lucide-react"
+import { Home, Compass, Radio, User, Shield, Inbox } from "lucide-react"
 import { cn } from "@/utils/cn"
 import { useApp } from "@/controllers/store"
 import {
@@ -16,6 +16,7 @@ const navItems = [
   { href: "/", label: "Home", icon: Home, adminOnly: false },
   { href: "/explore", label: "Explore", icon: Compass, adminOnly: false },
   { href: "/rooms", label: "Listening Rooms", icon: Radio, adminOnly: false },
+  { href: "/inbox", label: "Inbox", icon: Inbox, adminOnly: false },
   { href: "/profile", label: "Profile", icon: User, adminOnly: false },
   { href: "/moderation", label: "Moderation", icon: Shield, adminOnly: true },
 ]

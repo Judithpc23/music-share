@@ -91,7 +91,9 @@ export function ShareCard({ share }: ShareCardProps) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">{user?.username}</span>
+              <Link href={`/profile/${share.userId}`} className="font-semibold text-sm hover:underline">
+                {user?.username}
+              </Link>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(share.createdAt)}
               </span>

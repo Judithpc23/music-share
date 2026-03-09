@@ -8,6 +8,8 @@ import { LookupsModule } from './modules/lookups/lookups.module'
 import { CatalogModule } from './modules/catalog/catalog.module'
 import { BootstrapModule } from './modules/bootstrap/bootstrap.module'
 import { PostsModule } from './modules/posts/posts.module'
+import { NotificationsModule } from './modules/notifications/notifications.module'
+import { FollowsModule } from './modules/follows/follows.module'
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { PostsModule } from './modules/posts/posts.module'
     CatalogModule,
     BootstrapModule,
     PostsModule,
+    NotificationsModule,
+    FollowsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

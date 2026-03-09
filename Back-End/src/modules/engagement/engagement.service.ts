@@ -18,9 +18,16 @@ import {
   toDbShare,
 } from '@/common/utils/mappers'
 import { buildId } from '@/common/utils/id-generator'
+import { NotificationsMediator } from '../notifications/notifications.mediator'
+import { FollowsService } from '../follows/follows.service'
 
 @Injectable()
 export class EngagementService {
+  constructor(
+    private readonly notificationsMediator: NotificationsMediator,
+    private readonly followsService: FollowsService
+  ) {}
+
   async getAllReactions(): Promise<Reaction[]> {
     const { data, error } = await supabase.from('reactions').select('*')
 
@@ -117,6 +124,8 @@ export class EngagementService {
       return { success: false }
     }
 
+    await this.notificationsMediator.notifyReactionCreated(newReaction)
+
     return { success: true, reaction: newReaction }
   }
 
@@ -201,6 +210,8 @@ export class EngagementService {
       return { success: false }
     }
 
+    await this.notificationsMediator.notifyCommentCreated(newComment)
+
     return { success: true, comment: newComment }
   }
 
@@ -221,7 +232,12 @@ export class EngagementService {
     return { success: true }
   }
 
-  async getSharesForUser(userId: string): Promise<Share[]> {
+  async getSharesForUser(userId: string, viewerUserId?: string): Promise<Share[]> {
+    const canView = await this.followsService.canViewUserContent(viewerUserId, userId)
+    if (!canView) {
+      return []
+    }
+
     const { data, error } = await supabase
       .from('shares')
       .select('*')
@@ -234,15 +250,23 @@ export class EngagementService {
       return []
     }
 
-    return (data ?? []).map((row) => ({
-      id: row.id,
-      userId: row.user_id,
-      songId: row.song_id,
-      captionText: row.caption_text,
-      visibility: row.visibility,
-      createdAt: row.created_at,
-      status: row.status,
-    }))
+    const relationship = viewerUserId
+      ? await this.followsService.getRelationship(viewerUserId, userId)
+      : null
+    const canViewFriends =
+      viewerUserId === userId || relationship?.status === 'accepted'
+
+    return (data ?? [])
+      .map((row) => ({
+        id: row.id,
+        userId: row.user_id,
+        songId: row.song_id,
+        captionText: row.caption_text,
+        visibility: row.visibility,
+        createdAt: row.created_at,
+        status: row.status,
+      }))
+      .filter((share) => share.visibility === 'public' || canViewFriends)
   }
 
   async getSharesForSong(songId: string): Promise<Share[]> {
@@ -268,7 +292,7 @@ export class EngagementService {
     }))
   }
 
-  async getAllShares(): Promise<Share[]> {
+  async getAllShares(viewerUserId?: string): Promise<Share[]> {
     const { data, error } = await supabase
       .from('shares')
       .select('*')
@@ -279,7 +303,7 @@ export class EngagementService {
       return []
     }
 
-    return (data ?? []).map((row) => ({
+    const shares = (data ?? []).map((row) => ({
       id: row.id,
       userId: row.user_id,
       songId: row.song_id,
@@ -288,6 +312,32 @@ export class EngagementService {
       createdAt: row.created_at,
       status: row.status,
     }))
+
+    if (!viewerUserId) {
+      return shares.filter((share) => share.visibility === 'public')
+    }
+
+    const visibility = await Promise.all(
+      shares.map(async (share) => {
+        if (share.userId === viewerUserId) return true
+
+        const canViewOwner = await this.followsService.canViewUserContent(
+          viewerUserId,
+          share.userId
+        )
+        if (!canViewOwner) return false
+
+        if (share.visibility === 'public') return true
+
+        const relationship = await this.followsService.getRelationship(
+          viewerUserId,
+          share.userId
+        )
+        return relationship?.status === 'accepted'
+      })
+    )
+
+    return shares.filter((_, index) => visibility[index])
   }
 
   async addShare(

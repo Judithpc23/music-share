@@ -34,10 +34,11 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       pathname.startsWith("/moderation")
 
     if (!requiresFeedEngagement || hasLoadedFeedEngagementRef.current) return
+    if (!state.currentUserId) return
 
     hasLoadedFeedEngagementRef.current = true
     void Promise.all([
-      backendController.getAllShares(),
+      backendController.getAllShares(state.currentUserId),
       backendController.getAllReactions(),
       backendController.getAllComments(),
     ])
@@ -52,7 +53,7 @@ export function useEngagement({ state, setState }: UseEngagementParams) {
       .catch((error) => {
         console.error("[api] failed to load engagement data", error)
       })
-  }, [pathname, setState])
+  }, [pathname, setState, state.currentUserId])
 
   useEffect(() => {
     if (!pathname.startsWith("/moderation") || hasLoadedReportsRef.current) return
