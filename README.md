@@ -1,4 +1,4 @@
-# SoundShare (Repositorio General)
+# SoundShare
 
 Este repositorio contiene la aplicación completa de **SoundShare**, una plataforma social de música donde los usuarios pueden descubrir canciones, publicar contenido, reaccionar, comentar y participar en listening rooms.
 
