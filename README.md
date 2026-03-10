@@ -78,3 +78,6 @@ Para evitar duplicar instrucciones:
 ## Estado del proyecto
 
 Repositorio orientado a desarrollo académico/prototipo funcional con estructura lista para evolucionar a producción con endurecimiento adicional (seguridad, observabilidad y despliegue automatizado).
+
+## Video Demo
+https://youtu.be/qNnwVw-9Gkk
