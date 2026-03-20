@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Radio, Plus } from "lucide-react"
+import { Radio, Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -25,7 +25,7 @@ import { useApp } from "@/mvc/controllers/store"
 import { useToast } from "@/hooks/use-toast"
 
 export default function RoomsPage() {
-  const { getActiveRooms, songs, getArtistById, createRoom } = useApp()
+  const { getActiveRooms, songs, getArtistById, createRoom, isLoading } = useApp()
   const { toast } = useToast()
   
   const [roomName, setRoomName] = useState("")
@@ -34,9 +34,9 @@ export default function RoomsPage() {
   
   const activeRooms = getActiveRooms()
 
-  const handleCreateRoom = () => {
+  const handleCreateRoom = async () => {
     if (!roomName.trim() || !selectedSongId) return
-    createRoom(roomName, selectedSongId)
+    await createRoom(roomName, selectedSongId)
     setRoomName("")
     setSelectedSongId("")
     setDialogOpen(false)
@@ -44,6 +44,14 @@ export default function RoomsPage() {
       title: "Room created",
       description: "Your listening room is now active.",
     })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
   }
 
   return (

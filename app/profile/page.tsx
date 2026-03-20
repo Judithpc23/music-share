@@ -19,7 +19,8 @@ export default function ProfilePage() {
     comments, 
     getUserById, 
     getSongById,
-    getArtistById
+    getArtistById,
+    isLoading
   } = useApp()
 
   const selectedUser = getUserById(currentUserId)

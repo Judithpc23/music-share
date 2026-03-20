@@ -11,7 +11,8 @@ import {
   LogOut, 
   XCircle,
   BadgeCheck,
-  Crown
+  Crown,
+  Loader2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -41,7 +42,8 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     leaveRoom,
     endRoom,
     currentUserId,
-    roomMembers
+    roomMembers,
+    isLoading
   } = useApp()
   
   const room = getRoomById(id)
@@ -78,6 +80,14 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     }
   }, [playbackState?.isPlaying, playbackState?.positionSeconds, song, id, updatePlaybackState])
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   if (!room || room.status === "ended") {
     return (
       <div className="text-center py-12">
@@ -106,19 +116,19 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     )
   }
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     const newIsPlaying = !playbackState?.isPlaying
-    updatePlaybackState(id, { isPlaying: newIsPlaying })
-    addRoomActivity(id, newIsPlaying ? "played" : "paused")
+    await updatePlaybackState(id, { isPlaying: newIsPlaying })
+    await addRoomActivity(id, newIsPlaying ? "played" : "paused")
   }
 
-  const handleSeek = (value: number[]) => {
-    updatePlaybackState(id, { positionSeconds: value[0] })
-    addRoomActivity(id, "seeked", `to ${formatTime(value[0])}`)
+  const handleSeek = async (value: number[]) => {
+    await updatePlaybackState(id, { positionSeconds: value[0] })
+    await addRoomActivity(id, "seeked", `to ${formatTime(value[0])}`)
   }
 
-  const handleLeave = () => {
-    leaveRoom(id)
+  const handleLeave = async () => {
+    await leaveRoom(id)
     toast({
       title: "Left room",
       description: "You have left the listening room.",
@@ -126,8 +136,8 @@ export default function RoomDetailPage({ params }: { params: Promise<{ id: strin
     router.push("/rooms")
   }
 
-  const handleEndRoom = () => {
-    endRoom(id)
+  const handleEndRoom = async () => {
+    await endRoom(id)
     toast({
       title: "Room ended",
       description: "The listening room has been closed.",
